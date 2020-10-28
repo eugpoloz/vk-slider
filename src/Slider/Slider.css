@@ -4,6 +4,7 @@
   height: 2px;
   background: #e1e3e6;
   border-radius: 1px;
+  cursor: pointer;
 }
 
 .slider__track {
@@ -16,11 +17,12 @@
 
 .slider__knob {
   position: absolute;
+  top: -14px;
+  right: -14px;
   width: 28px;
   height: 28px;
-  left: calc(100% - 28px / 2);
-  top: calc(100% - 28px / 2);
   background: #ffffff;
   box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.15);
   border-radius: 50%;
+  cursor: pointer;
 }
