@@ -7,21 +7,61 @@ type SliderProps = {
     step: number
 };
 
-type SliderStyles = {
-    width: string
+// helper functions
+type SliderHelperProps = SliderProps & {
+    sliderWidth: number
+}
+function validateAbsolutePosition(position: number, { sliderWidth, min, max, step }: SliderHelperProps) {
+    let validPosition = Math.max(0, Math.min(position, sliderWidth));
+
+    if (step > 0) {
+        const stepCount = (max - min) / step;
+        const absStep = sliderWidth / stepCount;
+
+        validPosition = Math.round(validPosition / absStep) * absStep;
+    }
+
+    return validPosition;
 }
 
+function validatePercent(percent: number): number {
+    return Math.max(0, Math.min(percent, 100));
+}
+
+function getPercentFromAbsolutePosition(position: number, { sliderWidth }: SliderHelperProps) {
+    return position * 100 / sliderWidth;
+}
+
+function precisionRound(number: number, precision: number) {
+    let factor = Math.pow(10, precision || 1);
+    return Math.round(number * factor) / factor;
+}
+
+function percentToValue(percent: number, { sliderWidth, min, max, step }: SliderHelperProps) {
+    const res = percent * (max - min) / 100 + min;
+
+    if (step > 0) {
+        const stepFloatPart = `${step}`.split('.')[1] || '';
+        return precisionRound(res, stepFloatPart.length);
+    }
+
+    return res;
+}
+
+// function valueToPercent(value: number, { min, max }: SliderHelperProps) {
+//     return (value - min) * 100 / (max - min);
+// }
+
+// Slider function component
 function Slider({ min = 0, max = 100, step = 1 }: SliderProps) {
-    // set initial refs
-    const trackRef = React.useRef<HTMLDivElement>(null);
+    // get slider ref
     const sliderRef = React.useRef<HTMLDivElement>(null);
 
-    const [value, setValue] = React.useState(0);
+    // track active move
     const [active, toggleActive] = React.useState(false);
 
-    const style: SliderStyles = {
-        width: value + '%'
-    }
+    const [value, setValue] = React.useState(0);
+    const [percent, setPercent] = React.useState(0);
 
     // measure slider
     const [sliderWidth, updateSliderWidth] = React.useState(0);
@@ -48,62 +88,19 @@ function Slider({ min = 0, max = 100, step = 1 }: SliderProps) {
         }
     }, []);
 
-    // register helpers
-    const validateAbsolutePosition = (position: number) => {
-        let res = Math.max(0, Math.min(position, sliderWidth));
-
-        if (step > 0) {
-            const stepCount = (max - min) / step;
-            const absStep = sliderWidth / stepCount;
-
-            res = Math.round(res / absStep) * absStep;
-        }
-
-        // console.log('validatePosition', res);
-
-        return res;
-    }
-
-    // const validatePercent = (percent: number) => {
-    //     return Math.max(0, Math.min(percent, 100));
-    // }
-
-    const getPercentFromAbsolutePosition = (position: number) => {
-        return position * 100 / sliderWidth;
-    }
-
-    const precisionRound = (number: number, precision: number) => {
-        let factor = Math.pow(10, precision || 1);
-        return Math.round(number * factor) / factor;
-    }
-
-    const percentToValue = (percent: number) => {
-        const res = percent * (max - min) / 100 + min;
-
-        if (step > 0) {
-            const stepFloatPart = `${step}`.split('.')[1] || '';
-            return precisionRound(res, stepFloatPart.length);
-        }
-
-        return res;
-    }
-
-    // const valueToPercent = (value: number) => {
-    //     return (value - min) * 100 / (max - min);
-    // }
-
     // handle various events
-    // const onTouchDragStart: React.TouchEventHandler = ($event: React.TouchEvent<HTMLElement>) => {
-    //     console.log('onTouchDragStart', $event);
-
-    // }
-
     const updateSliderPosition = (positionX: number) => {
         if (active) {
-            const absolutePosition = validateAbsolutePosition(positionX - sliderOffsetX);
-            const percentPosition = getPercentFromAbsolutePosition(absolutePosition);
+            let helperProps = {
+                sliderWidth, min, max, step
+            };
 
-            setValue(percentToValue(percentPosition));
+            const absolutePosition = positionX - sliderOffsetX;
+            const validAbsolutePosition = validateAbsolutePosition(absolutePosition, helperProps);
+            const percentPosition = getPercentFromAbsolutePosition(validAbsolutePosition, helperProps);
+
+            setPercent(validatePercent(percentPosition));
+            setValue(percentToValue(percentPosition, helperProps))
         }
     }
 
@@ -173,20 +170,24 @@ function Slider({ min = 0, max = 100, step = 1 }: SliderProps) {
 
             <div
                 ref={sliderRef}
+                // touch events
                 onTouchStart={onTouchDragStart}
                 onTouchEnd={onTouchDragEnd}
+                // mouse events
                 onMouseDown={onMouseDragStart}
                 onMouseUp={onMouseDragEnd}
-                onMouseOut={onMouseDragEnd}
+                onMouseMove={onMouseDragMove}
                 className="slider">
-                <div
-                    ref={trackRef}
-                    className="slider__track"
-                    style={style}>
-                    <span
-                        onTouchMove={onTouchDragMove}
-                        onMouseMove={onMouseDragMove}
-                        className="slider__knob" />
+                <div className="slider__scale">
+                    <div
+                        className="slider__track"
+                        style={{
+                            width: percent + '%'
+                        }}>
+                        <span
+                            onTouchMove={onTouchDragMove}
+                            className={active ? 'slider__knob active' : 'slider__knob'} />
+                    </div>
                 </div>
             </div>
         </>
