@@ -7,10 +7,14 @@ type SliderProps = {
     step: number
 };
 
+type SliderStyles = {
+    width: string
+}
+
 function Slider({ min = 0, max = 100, step = 1 }: SliderProps) {
     const [value, useValue] = React.useState(30);
 
-    const style = {
+    const style: SliderStyles = {
         width: value + '%'
     }
 
