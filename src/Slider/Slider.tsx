@@ -4,11 +4,17 @@ import "./Slider.css";
 type SliderProps = {
     min: number,
     max: number,
-    step: number
+    step: number,
+    value?: number,
+    defaultValue?: number,
+    onChange?: Function
 };
 
 // helper functions
-type SliderHelperProps = SliderProps & {
+type SliderHelperProps = {
+    min: number,
+    max: number,
+    step: number,
     sliderWidth: number
 }
 function validateAbsolutePosition(position: number, { sliderWidth, min, max, step }: SliderHelperProps) {
@@ -48,20 +54,15 @@ function percentToValue(percent: number, { sliderWidth, min, max, step }: Slider
     return res;
 }
 
-// function valueToPercent(value: number, { min, max }: SliderHelperProps) {
-//     return (value - min) * 100 / (max - min);
-// }
+type ValueToPercentProps = { min: number, max: number };
+function valueToPercent(value: number, { min, max }: ValueToPercentProps) {
+    return (value - min) * 100 / (max - min);
+}
 
 // Slider function component
-function Slider({ min = 0, max = 100, step = 1 }: SliderProps) {
+function Slider({ min = 0, max = 100, step = 1, ...props }: SliderProps) {
     // get slider ref
     const sliderRef = React.useRef<HTMLDivElement>(null);
-
-    // track active move
-    const [active, toggleActive] = React.useState(false);
-
-    const [value, setValue] = React.useState(0);
-    const [percent, setPercent] = React.useState(0);
 
     // measure slider
     const [sliderWidth, updateSliderWidth] = React.useState(0);
@@ -88,6 +89,26 @@ function Slider({ min = 0, max = 100, step = 1 }: SliderProps) {
         }
     }, []);
 
+    // set values and percentages
+    const determineInitialValue = () => {
+        let initialValue = 0;
+
+        if (props.value) {
+            initialValue = props.value;
+        } else if (props.defaultValue) {
+            initialValue = props.defaultValue;
+        }
+
+        return initialValue;
+    }
+    const initialValue = determineInitialValue();
+
+    const [value, setValue] = React.useState(initialValue);
+    const [percent, setPercent] = React.useState(valueToPercent(initialValue, { min, max }));
+
+    // track active move
+    const [active, toggleActive] = React.useState(false);
+
     // handle various events
     const updateSliderPosition = (positionX: number) => {
         if (active) {
@@ -100,7 +121,12 @@ function Slider({ min = 0, max = 100, step = 1 }: SliderProps) {
             const percentPosition = getPercentFromAbsolutePosition(validAbsolutePosition, helperProps);
 
             setPercent(validatePercent(percentPosition));
-            setValue(percentToValue(percentPosition, helperProps))
+            setValue(percentToValue(percentPosition, helperProps));
+
+
+            if (props.onChange) {
+                props.onChange(value);
+            }
         }
     }
 
@@ -165,32 +191,28 @@ function Slider({ min = 0, max = 100, step = 1 }: SliderProps) {
     }
 
     return (
-        <>
-            <p>Value: {value}</p>
-
-            <div
-                ref={sliderRef}
-                // touch events
-                onTouchStart={onTouchDragStart}
-                onTouchEnd={onTouchDragEnd}
-                // mouse events
-                onMouseDown={onMouseDragStart}
-                onMouseUp={onMouseDragEnd}
-                onMouseMove={onMouseDragMove}
-                className="slider">
-                <div className="slider__scale">
-                    <div
-                        className="slider__track"
-                        style={{
-                            width: percent + '%'
-                        }}>
-                        <span
-                            onTouchMove={onTouchDragMove}
-                            className={active ? 'slider__knob active' : 'slider__knob'} />
-                    </div>
+        <div
+            ref={sliderRef}
+            // touch events
+            onTouchStart={onTouchDragStart}
+            onTouchEnd={onTouchDragEnd}
+            // mouse events
+            onMouseDown={onMouseDragStart}
+            onMouseUp={onMouseDragEnd}
+            onMouseMove={onMouseDragMove}
+            className="slider">
+            <div className="slider__scale">
+                <div
+                    className="slider__track"
+                    style={{
+                        width: percent + '%'
+                    }}>
+                    <span
+                        onTouchMove={onTouchDragMove}
+                        className={active ? 'slider__knob active' : 'slider__knob'} />
                 </div>
             </div>
-        </>
+        </div>
     );
 }
 
