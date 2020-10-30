@@ -24,8 +24,8 @@ function Slider({ min = 0, max = 100, step = 1, onChange, ...props }: SliderProp
     const knobRef = React.useRef<HTMLSpanElement>(null);
 
     // measure slider
-    const [sliderWidth, updateSliderWidth] = React.useState(0);
-    const [sliderOffsetX, updateSliderOffsetX] = React.useState(0);
+    const [sliderWidth, updateSliderWidth] = React.useState<number>(0);
+    const [sliderOffsetX, updateSliderOffsetX] = React.useState<number>(0);
 
     const updateSliderDimensions = React.useCallback(() => {
         let sliderDimensions = sliderRef?.current?.getBoundingClientRect();
@@ -62,9 +62,9 @@ function Slider({ min = 0, max = 100, step = 1, onChange, ...props }: SliderProp
     const initialValue = determineInitialValue();
     const initialPercent = valueToPercent(initialValue, { min, max });
 
-    const [value, setValue] = React.useState(initialValue);
-    const [percent, setPercent] = React.useState(initialPercent);
-    const [active, toggleActive] = React.useState(false);
+    const [value, setValue] = React.useState<number>(initialValue);
+    const [percent, setPercent] = React.useState<number>(initialPercent);
+    const [active, toggleActive] = React.useState<boolean>(false);
 
     // handle onChange event on value changes
     React.useEffect(() => {
