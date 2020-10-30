@@ -1,4 +1,18 @@
-// helper functions
+export const getClientXFromEvent = ($event: React.TouchEvent<HTMLElement> | React.MouseEvent<HTMLElement>) => {
+    let $touchEvent = ($event as React.TouchEvent<HTMLElement>);
+    let $mouseEvent = ($event as React.MouseEvent<HTMLElement>);
+
+    if ($touchEvent?.touches?.[0]?.clientX) {
+        return $touchEvent.touches[0].clientX;
+    }
+
+    if ($mouseEvent?.clientX) {
+        return $mouseEvent.clientX;
+    }
+
+    return undefined;
+}
+
 export type SliderHelperProps = {
     min: number,
     max: number,
