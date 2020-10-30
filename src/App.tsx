@@ -3,30 +3,71 @@ import Slider from './components/Slider';
 import "./App.css";
 
 function App() {
-  let [sliderValue, updateSliderValue] = React.useState(15);
+  let [controlledValue, updateControlledValue] = React.useState(20);
+  let [uncontrolledValue, updateUncontrolledValue] = React.useState(50);
+
+  let disabledValue: number = 50;
 
   return (
-    <div className="vk-slider-demo">
-      <h2>Controlled Slider: {sliderValue}</h2>
+    <article className="vk-slider-demo">
+      <section className="vk-slider-demo__section">
+        <h2>Контролируемый слайдер</h2>
 
-      <Slider
-        min={5}
-        max={25}
-        step={5}
-        value={sliderValue}
-        onChange={updateSliderValue}
-      />
+        <div className="vk-slider-demo__information">
+          <p>5-25, шаг 5</p>
+          <p>Значение: <strong>{controlledValue}</strong></p>
+        </div>
+
+        <Slider
+          min={5}
+          max={25}
+          step={5}
+          value={controlledValue}
+          onChange={updateControlledValue}
+          ariaLabelledBy="Контролируемый слайдер"
+        />
+      </section>
 
       <hr />
 
-      <h2>Uncontrolled Slider</h2>
+      <section className="vk-slider-demo__section">
+        <h2>Неконтролируемый слайдер</h2>
 
-      <Slider
-        min={0}
-        max={100}
-        step={1}
-      />
-    </div>
+        <div className="vk-slider-demo__information">
+          <p>0-100, шаг 1</p>
+          <p>Значение: <strong>{uncontrolledValue}</strong></p>
+        </div>
+
+        <Slider
+          min={0}
+          max={100}
+          step={1}
+          defaultValue={uncontrolledValue}
+          onChange={updateUncontrolledValue}
+          ariaLabelledBy="Неконтролируемый слайдер"
+        />
+      </section>
+
+      <hr />
+
+      <section className="vk-slider-demo__section">
+        <h2>Выключенный слайдер</h2>
+
+        <div className="vk-slider-demo__information">
+          <p>0-100, шаг 1</p>
+          <p>Значение: <strong>{disabledValue}</strong></p>
+        </div>
+
+        <Slider
+          min={0}
+          max={100}
+          step={1}
+          defaultValue={disabledValue}
+          disabled
+          ariaLabelledBy="Выключенный слайдер"
+        />
+      </section>
+    </article>
   );
 }
 
