@@ -1,6 +1,7 @@
 import React from "react";
 import { getClientXFromEvent, getPercentFromAbsolutePosition, valueToPercent, validateAbsolutePosition, validatePercent, percentToValue } from "../../helpers";
 import "./Slider.css";
+import debounce from 'lodash.debounce';
 
 type SliderDragEvent = React.TouchEvent<HTMLElement> | React.MouseEvent<HTMLElement>;
 
@@ -15,8 +16,9 @@ type SliderProps = {
     ariaLabelledBy?: string
 };
 
-// Slider function component
 function Slider({ min = 0, max = 100, step = 1, onChange, ...props }: SliderProps) {
+    const DEBOUNCE_EVENT_TIMEOUT = 300;
+
     // get slider ref
     const sliderRef = React.useRef<HTMLDivElement>(null);
 
@@ -24,25 +26,25 @@ function Slider({ min = 0, max = 100, step = 1, onChange, ...props }: SliderProp
     const [sliderWidth, updateSliderWidth] = React.useState(0);
     const [sliderOffsetX, updateSliderOffsetX] = React.useState(0);
 
-    const updateSliderDimensions = () => {
+    const updateSliderDimensions = React.useCallback(() => {
         let sliderDimensions = sliderRef?.current?.getBoundingClientRect();
 
         if (sliderDimensions) {
             updateSliderWidth(sliderDimensions.width);
             updateSliderOffsetX(sliderDimensions.x);
         }
-    };
+    }, []);
+    const debounceUpdateSliderDimensions = debounce(updateSliderDimensions, DEBOUNCE_EVENT_TIMEOUT);
 
     React.useEffect(() => {
         updateSliderDimensions();
 
-        // todo: debounce
-        window.addEventListener('resize', updateSliderDimensions);
+        window.addEventListener('resize', debounceUpdateSliderDimensions);
 
         return () => {
-            window.removeEventListener('resize', updateSliderDimensions);
+            window.removeEventListener('resize', debounceUpdateSliderDimensions);
         }
-    }, []);
+    }, [updateSliderDimensions, debounceUpdateSliderDimensions]);
 
     // set values and percentages
     const determineInitialValue = () => {
@@ -96,46 +98,44 @@ function Slider({ min = 0, max = 100, step = 1, onChange, ...props }: SliderProp
         $event.stopPropagation();
     }, []);
 
-    // drag move
-    const onDragMove = React.useCallback(($event) => {
+    const handleDragMove = React.useCallback(($event) => {
         preventDefaultAndStopPropagation($event);
         updateSliderPosition($event);
     }, [updateSliderPosition, preventDefaultAndStopPropagation]);
 
-    const onDragStart = ($event: SliderDragEvent) => {
+    const handleDragStart = ($event: SliderDragEvent) => {
         preventDefaultAndStopPropagation($event);
 
         toggleActive(true);
         updateSliderPosition($event);
 
-        document.addEventListener('mousemove', onDragMove, false);
-        document.addEventListener('touchmove', onDragMove, false);
+        document.addEventListener('mousemove', handleDragMove, false);
+        document.addEventListener('touchmove', handleDragMove, false);
 
-        document.addEventListener('mouseup', onDragEnd, false);
-        document.addEventListener('touchend', onDragEnd, false);
+        document.addEventListener('mouseup', handleDragEnd, false);
+        document.addEventListener('touchend', handleDragEnd, false);
     }
 
-    // drag end
-    const onDragEnd = React.useCallback(($event) => {
+    const handleDragEnd = React.useCallback(($event) => {
         preventDefaultAndStopPropagation($event);
         updateSliderPosition($event);
         toggleActive(false);
 
-        document.removeEventListener('mousemove', onDragMove, false);
-        document.removeEventListener('touchmove', onDragMove, false);
+        document.removeEventListener('mousemove', handleDragMove, false);
+        document.removeEventListener('touchmove', handleDragMove, false);
 
         setTimeout(() => {
-            document.removeEventListener('mouseup', onDragEnd, false);
-            document.removeEventListener('touchend', onDragEnd, false);
+            document.removeEventListener('mouseup', handleDragEnd, false);
+            document.removeEventListener('touchend', handleDragEnd, false);
         }, 0)
-    }, [updateSliderPosition, onDragMove, preventDefaultAndStopPropagation]);
+    }, [updateSliderPosition, preventDefaultAndStopPropagation, handleDragMove]);
 
     return (
         <div
             ref={sliderRef}
             className={props?.disabled ? "slider disabled" : "slider"}
-            onMouseDown={!props?.disabled ? onDragStart : undefined}
-            onTouchStart={!props?.disabled ? onDragStart : undefined}>
+            onMouseDown={!props?.disabled ? handleDragStart : undefined}
+            onTouchStart={!props?.disabled ? handleDragStart : undefined}>
             <span className="slider__rail" />
             <span
                 className="slider__track"
@@ -156,6 +156,9 @@ function Slider({ min = 0, max = 100, step = 1, onChange, ...props }: SliderProp
                 aria-valuemax={max}
                 aria-valuemin={min}
                 aria-valuenow={value}
+                // onKeyDown={handleKeyDown}
+                // onFocus={handleFocus}
+                // onBlur={handleBlur}
                 style={{
                     left: percent + '%'
                 }}
