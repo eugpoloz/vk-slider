@@ -1,5 +1,5 @@
 import React from "react";
-import { getPercentFromAbsolutePosition, valueToPercent, validateAbsolutePosition, validatePercent, percentToValue } from "../../helpers";
+import { getClientXFromEvent, getPercentFromAbsolutePosition, valueToPercent, validateAbsolutePosition, validatePercent, percentToValue } from "../../helpers";
 import "./Slider.css";
 
 type SliderDragEvent = React.TouchEvent<HTMLElement> | React.MouseEvent<HTMLElement>;
@@ -14,7 +14,7 @@ type SliderProps = {
 };
 
 // Slider function component
-function Slider({ min = 0, max = 100, step = 1, ...props }: SliderProps) {
+function Slider({ min = 0, max = 100, step = 1, onChange, ...props }: SliderProps) {
     // get slider ref
     const sliderRef = React.useRef<HTMLDivElement>(null);
 
@@ -55,92 +55,85 @@ function Slider({ min = 0, max = 100, step = 1, ...props }: SliderProps) {
         return initialValue;
     }
     const initialValue = determineInitialValue();
+    const initialPercent = valueToPercent(initialValue, { min, max });
 
     const [value, setValue] = React.useState(initialValue);
-    const [percent, setPercent] = React.useState(valueToPercent(initialValue, { min, max }));
-
-    // track active move
+    const [percent, setPercent] = React.useState(initialPercent);
     const [active, toggleActive] = React.useState(false);
 
-    // handle various events
-    const updateSliderPosition = (positionX?: number) => {
-        if (active && positionX != null) {
+    // handle onChange event on value changes
+    React.useEffect(() => {
+        if (!!onChange) {
+            onChange(value);
+        }
+    }, [value, onChange]);
+
+    // get and update slider position
+    const updateSliderPosition = React.useCallback(($event: SliderDragEvent) => {
+        const clientX = getClientXFromEvent($event);
+
+        if (clientX != null) {
             let helperProps = {
                 sliderWidth, min, max, step
             };
 
-            const absolutePosition = positionX - sliderOffsetX;
+            const absolutePosition = clientX - sliderOffsetX;
             const validAbsolutePosition = validateAbsolutePosition(absolutePosition, helperProps);
             const percentPosition = getPercentFromAbsolutePosition(validAbsolutePosition, sliderWidth);
 
             setPercent(validatePercent(percentPosition));
             setValue(percentToValue(percentPosition, helperProps));
-
-
-            if (props.onChange) {
-                props.onChange(value);
-            }
         }
-    }
+    }, [max, min, sliderOffsetX, sliderWidth, step]);
 
-    const getClientXFromEvent = ($event: SliderDragEvent) => {
-        let $touchEvent = ($event as React.TouchEvent<HTMLElement>);
-        let $mouseEvent = ($event as React.MouseEvent<HTMLElement>);
-
-        if ($touchEvent?.touches?.[0]?.clientX) {
-            return $touchEvent.touches[0].clientX;
+    const preventDefaultAndStopPropagation = React.useCallback(($event: any) => {
+        if (($event as React.TouchEvent<HTMLElement>).changedTouches?.length > 1) {
+            $event.preventDefault();
         }
 
-        if ($mouseEvent?.clientX) {
-            return $mouseEvent.clientX;
-        }
+        $event.stopPropagation();
+    }, []);
 
-        return undefined;
-    }
+    // drag move
+    const onDragMove = React.useCallback(($event) => {
+        preventDefaultAndStopPropagation($event);
+        updateSliderPosition($event);
+    }, [updateSliderPosition, preventDefaultAndStopPropagation]);
 
     const onDragStart = ($event: SliderDragEvent) => {
-        // $event.preventDefault();
-        $event.stopPropagation();
-
-        const clientX = getClientXFromEvent($event);
+        preventDefaultAndStopPropagation($event);
 
         toggleActive(true);
-        updateSliderPosition(clientX);
+        updateSliderPosition($event);
+
+        document.addEventListener('mousemove', onDragMove, false);
+        document.addEventListener('touchmove', onDragMove, false);
+
+        document.addEventListener('mouseup', onDragEnd, false);
+        document.addEventListener('touchend', onDragEnd, false);
     }
 
     // drag end
-    const onDragEnd = ($event: SliderDragEvent) => {
-        // $event.preventDefault();
-        $event.stopPropagation();
-
-        const clientX = getClientXFromEvent($event);
-
+    const onDragEnd = React.useCallback(($event) => {
+        preventDefaultAndStopPropagation($event);
+        updateSliderPosition($event);
         toggleActive(false);
-        updateSliderPosition(clientX);
-    }
 
-    // drag move
-    const onDragMove = ($event: SliderDragEvent) => {
-        // $event.preventDefault();
-        $event.stopPropagation();
+        document.removeEventListener('mousemove', onDragMove, false);
+        document.removeEventListener('touchmove', onDragMove, false);
 
-        const clientX = getClientXFromEvent($event);
-
-        updateSliderPosition(clientX);
-    }
+        setTimeout(() => {
+            document.removeEventListener('mouseup', onDragEnd, false);
+            document.removeEventListener('touchend', onDragEnd, false);
+        }, 0)
+    }, [updateSliderPosition, onDragMove, preventDefaultAndStopPropagation]);
 
     return (
         <div
             ref={sliderRef}
             className="slider"
-            // touch events
-            onTouchStart={onDragStart}
-            onTouchEnd={onDragEnd}
-            onTouchMove={onDragMove}
-            // mouse events
             onMouseDown={onDragStart}
-            onMouseUp={onDragEnd}
-            onMouseMove={onDragMove}>
+            onTouchStart={onDragStart}>
             <div className="slider__scale">
                 <div
                     className="slider__track"
