@@ -1,7 +1,7 @@
 import React from "react";
 import { getClientXFromEvent, getPercentFromAbsolutePosition, valueToPercent, validateAbsolutePosition, validatePercent, percentToValue } from "../../helpers";
-import "./Slider.css";
 import debounce from 'lodash.debounce';
+import "./Slider.css";
 
 type SliderDragEvent = React.TouchEvent<HTMLElement> | React.MouseEvent<HTMLElement>;
 
@@ -168,14 +168,6 @@ function Slider({ min = 0, max = 100, step = 1, onChange, ...props }: SliderProp
         setPercent(valueToPercent(newValue, { min, max }));
     }
 
-    // const handleFocus: React.FocusEventHandler = ($event: React.FocusEvent<HTMLElement>) => {
-    //     console.log('handleFocus', $event);
-    // }
-
-    // const handleBlur = ($event: unknown) => {
-    //     console.log('handleBlur', $event);
-    // }
-
     // clean up event listeners on component destroy
     React.useEffect(() => {
         return () => {
@@ -190,9 +182,9 @@ function Slider({ min = 0, max = 100, step = 1, onChange, ...props }: SliderProp
     return (
         <div
             ref={sliderRef}
-            className={props?.disabled ? "slider disabled" : "slider"}
-            onMouseDown={!props?.disabled ? handleDragStart : undefined}
-            onTouchStart={!props?.disabled ? handleDragStart : undefined}>
+            className={(props && props.disabled) ? "slider disabled" : "slider"}
+            onMouseDown={!(props && props.disabled) ? handleDragStart : undefined}
+            onTouchStart={!(props && props.disabled) ? handleDragStart : undefined}>
             <span className="slider__rail" />
             <span
                 className="slider__track"
@@ -202,20 +194,18 @@ function Slider({ min = 0, max = 100, step = 1, onChange, ...props }: SliderProp
             />
             <input
                 type="hidden"
-                disabled={props?.disabled}
+                disabled={props && props.disabled}
                 value={value}
             />
             <span
                 ref={knobRef}
-                tabIndex={props?.disabled ? undefined : 0}
+                tabIndex={props && props.disabled ? undefined : 0}
                 role="slider"
-                aria-labelledby={props?.ariaLabelledBy}
+                aria-labelledby={props && props.ariaLabelledBy}
                 aria-orientation="horizontal"
                 aria-valuemax={max}
                 aria-valuemin={min}
                 aria-valuenow={value}
-                // onFocus={handleFocus}
-                // onBlur={handleBlur}
                 onKeyDown={handleKeyDown}
                 style={{
                     left: percent + '%'
