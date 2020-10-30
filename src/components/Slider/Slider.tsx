@@ -10,7 +10,9 @@ type SliderProps = {
     step: number,
     value?: number,
     defaultValue?: number,
-    onChange?: Function
+    onChange?: Function,
+    disabled?: boolean,
+    ariaLabelledBy?: string
 };
 
 // Slider function component
@@ -131,19 +133,34 @@ function Slider({ min = 0, max = 100, step = 1, onChange, ...props }: SliderProp
     return (
         <div
             ref={sliderRef}
-            className="slider"
-            onMouseDown={onDragStart}
-            onTouchStart={onDragStart}>
-            <div className="slider__scale">
-                <div
-                    className="slider__track"
-                    style={{
-                        width: percent + '%'
-                    }}>
-                    <span
-                        className={active ? 'slider__knob active' : 'slider__knob'} />
-                </div>
-            </div>
+            className={props?.disabled ? "slider disabled" : "slider"}
+            onMouseDown={!props?.disabled ? onDragStart : undefined}
+            onTouchStart={!props?.disabled ? onDragStart : undefined}>
+            <span className="slider__rail" />
+            <span
+                className="slider__track"
+                style={{
+                    width: percent + '%'
+                }}
+            />
+            <input
+                type="hidden"
+                disabled={props?.disabled}
+                value={value}
+            />
+            <span
+                tabIndex={props?.disabled ? undefined : 0}
+                role="slider"
+                aria-labelledby={props?.ariaLabelledBy}
+                aria-orientation="horizontal"
+                aria-valuemax={max}
+                aria-valuemin={min}
+                aria-valuenow={value}
+                style={{
+                    left: percent + '%'
+                }}
+                className={active ? 'slider__knob active' : 'slider__knob'}
+            />
         </div>
     );
 }
