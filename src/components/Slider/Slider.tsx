@@ -19,8 +19,9 @@ type SliderProps = {
 function Slider({ min = 0, max = 100, step = 1, onChange, ...props }: SliderProps) {
     const DEBOUNCE_EVENT_TIMEOUT = 300;
 
-    // get slider ref
+    // get refs
     const sliderRef = React.useRef<HTMLDivElement>(null);
+    const knobRef = React.useRef<HTMLSpanElement>(null);
 
     // measure slider
     const [sliderWidth, updateSliderWidth] = React.useState(0);
@@ -98,6 +99,7 @@ function Slider({ min = 0, max = 100, step = 1, onChange, ...props }: SliderProp
         $event.stopPropagation();
     }, []);
 
+    // handle events
     const handleDragMove = React.useCallback(($event) => {
         preventDefaultAndStopPropagation($event);
         updateSliderPosition($event);
@@ -106,6 +108,7 @@ function Slider({ min = 0, max = 100, step = 1, onChange, ...props }: SliderProp
     const handleDragStart = ($event: SliderDragEvent) => {
         preventDefaultAndStopPropagation($event);
 
+        knobRef.current?.focus();
         toggleActive(true);
         updateSliderPosition($event);
 
@@ -120,6 +123,7 @@ function Slider({ min = 0, max = 100, step = 1, onChange, ...props }: SliderProp
         preventDefaultAndStopPropagation($event);
         updateSliderPosition($event);
         toggleActive(false);
+        knobRef.current?.blur();
 
         document.removeEventListener('mousemove', handleDragMove, false);
         document.removeEventListener('touchmove', handleDragMove, false);
@@ -129,6 +133,59 @@ function Slider({ min = 0, max = 100, step = 1, onChange, ...props }: SliderProp
             document.removeEventListener('touchend', handleDragEnd, false);
         }, 0)
     }, [updateSliderPosition, preventDefaultAndStopPropagation, handleDragMove]);
+
+    const handleKeyDown: React.KeyboardEventHandler = ($event: React.KeyboardEvent<HTMLSpanElement>) => {
+        preventDefaultAndStopPropagation($event);
+
+        let newValue = value;
+
+        switch ($event.key) {
+            case 'Home':
+                newValue = min;
+                break;
+            case 'End':
+                newValue = max;
+                break;
+            case 'PageUp':
+            case 'ArrowUp':
+            case 'ArrowRight':
+                if (value < max) {
+                    newValue = value + step;
+                }
+                break;
+            case 'PageDown':
+            case 'ArrowDown':
+            case 'ArrowLeft':
+                if (value > min) {
+                    newValue = value - step;
+                }
+                break;
+            default:
+                break;
+        }
+
+        setValue(newValue);
+        setPercent(valueToPercent(newValue, { min, max }));
+    }
+
+    // const handleFocus: React.FocusEventHandler = ($event: React.FocusEvent<HTMLElement>) => {
+    //     console.log('handleFocus', $event);
+    // }
+
+    // const handleBlur = ($event: unknown) => {
+    //     console.log('handleBlur', $event);
+    // }
+
+    // clean up event listeners on component destroy
+    React.useEffect(() => {
+        return () => {
+            document.removeEventListener('mousemove', handleDragMove, false);
+            document.removeEventListener('touchmove', handleDragMove, false);
+
+            document.removeEventListener('mouseup', handleDragEnd, false);
+            document.removeEventListener('touchend', handleDragEnd, false);
+        }
+    }, [handleDragMove, handleDragEnd])
 
     return (
         <div
@@ -149,6 +206,7 @@ function Slider({ min = 0, max = 100, step = 1, onChange, ...props }: SliderProp
                 value={value}
             />
             <span
+                ref={knobRef}
                 tabIndex={props?.disabled ? undefined : 0}
                 role="slider"
                 aria-labelledby={props?.ariaLabelledBy}
@@ -156,9 +214,9 @@ function Slider({ min = 0, max = 100, step = 1, onChange, ...props }: SliderProp
                 aria-valuemax={max}
                 aria-valuemin={min}
                 aria-valuenow={value}
-                // onKeyDown={handleKeyDown}
                 // onFocus={handleFocus}
                 // onBlur={handleBlur}
+                onKeyDown={handleKeyDown}
                 style={{
                     left: percent + '%'
                 }}
