@@ -1,4 +1,5 @@
 import React from "react";
+import { getPercentFromAbsolutePosition, valueToPercent, validateAbsolutePosition, validatePercent, percentToValue } from "../../helpers";
 import "./Slider.css";
 
 type SliderProps = {
@@ -9,55 +10,6 @@ type SliderProps = {
     defaultValue?: number,
     onChange?: Function
 };
-
-// helper functions
-type SliderHelperProps = {
-    min: number,
-    max: number,
-    step: number,
-    sliderWidth: number
-}
-function validateAbsolutePosition(position: number, { sliderWidth, min, max, step }: SliderHelperProps) {
-    let validPosition = Math.max(0, Math.min(position, sliderWidth));
-
-    if (step > 0) {
-        const stepCount = (max - min) / step;
-        const absStep = sliderWidth / stepCount;
-
-        validPosition = Math.round(validPosition / absStep) * absStep;
-    }
-
-    return validPosition;
-}
-
-function validatePercent(percent: number): number {
-    return Math.max(0, Math.min(percent, 100));
-}
-
-function getPercentFromAbsolutePosition(position: number, { sliderWidth }: SliderHelperProps) {
-    return position * 100 / sliderWidth;
-}
-
-function precisionRound(number: number, precision: number) {
-    let factor = Math.pow(10, precision || 1);
-    return Math.round(number * factor) / factor;
-}
-
-function percentToValue(percent: number, { sliderWidth, min, max, step }: SliderHelperProps) {
-    const res = percent * (max - min) / 100 + min;
-
-    if (step > 0) {
-        const stepFloatPart = `${step}`.split('.')[1] || '';
-        return precisionRound(res, stepFloatPart.length);
-    }
-
-    return res;
-}
-
-type ValueToPercentProps = { min: number, max: number };
-function valueToPercent(value: number, { min, max }: ValueToPercentProps) {
-    return (value - min) * 100 / (max - min);
-}
 
 // Slider function component
 function Slider({ min = 0, max = 100, step = 1, ...props }: SliderProps) {
@@ -74,14 +26,13 @@ function Slider({ min = 0, max = 100, step = 1, ...props }: SliderProps) {
         if (sliderDimensions) {
             updateSliderWidth(sliderDimensions.width);
             updateSliderOffsetX(sliderDimensions.x);
-
-            console.log('updateSliderDimensions', sliderDimensions);
         }
     };
 
     React.useEffect(() => {
         updateSliderDimensions();
 
+        // todo: debounce
         window.addEventListener('resize', updateSliderDimensions);
 
         return () => {
@@ -118,7 +69,7 @@ function Slider({ min = 0, max = 100, step = 1, ...props }: SliderProps) {
 
             const absolutePosition = positionX - sliderOffsetX;
             const validAbsolutePosition = validateAbsolutePosition(absolutePosition, helperProps);
-            const percentPosition = getPercentFromAbsolutePosition(validAbsolutePosition, helperProps);
+            const percentPosition = getPercentFromAbsolutePosition(validAbsolutePosition, sliderWidth);
 
             setPercent(validatePercent(percentPosition));
             setValue(percentToValue(percentPosition, helperProps));

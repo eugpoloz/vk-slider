@@ -1,5 +1,5 @@
 import React from "react";
-import Slider from './Slider';
+import Slider from './components/Slider';
 import "./App.css";
 
 function App() {
@@ -10,9 +10,9 @@ function App() {
       <h2>Controlled Slider: {sliderValue}</h2>
 
       <Slider
-        min={0}
-        max={50}
-        step={1}
+        min={5}
+        max={25}
+        step={5}
         value={sliderValue}
         onChange={updateSliderValue}
       />
