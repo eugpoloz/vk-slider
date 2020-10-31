@@ -1,5 +1,5 @@
 import React from "react";
-import { getClientXFromEvent, getPercentFromAbsolutePosition, valueToPercent, validateAbsolutePosition, validatePercent, percentToValue } from "../../helpers";
+import { getClientXFromEvent, getPercentFromAbsolutePosition, valueToPercent, validateAbsolutePosition, validatePercent, percentToValue, DEBOUNCE_EVENT_TIMEOUT, STEP_INCREMENT } from "../../helpers";
 import debounce from 'lodash.debounce';
 
 type SliderDragEvent = React.TouchEvent<HTMLElement> | React.MouseEvent<HTMLElement>;
@@ -16,8 +16,6 @@ type SliderProps = {
 };
 
 function Slider({ min = 0, max = 100, step = 1, onChange, ...props }: SliderProps) {
-    const DEBOUNCE_EVENT_TIMEOUT = 300;
-
     // get refs
     const sliderRef = React.useRef<HTMLDivElement>(null);
     const knobRef = React.useRef<HTMLSpanElement>(null);

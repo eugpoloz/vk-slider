@@ -1,5 +1,5 @@
 import React from "react";
-import { getClientXFromEvent, getPercentFromAbsolutePosition, valueToPercent, validateAbsolutePosition, percentToValue, SliderHelperProps } from "../../helpers";
+import { getClientXFromEvent, getPercentFromAbsolutePosition, valueToPercent, validateAbsolutePosition, percentToValue, SliderHelperProps, DEBOUNCE_EVENT_TIMEOUT, STEP_INCREMENT } from "../../helpers";
 import debounce from 'lodash.debounce';
 
 type SliderDragEvent = React.TouchEvent<HTMLElement> | React.MouseEvent<HTMLElement>;
@@ -15,8 +15,6 @@ type RangeSliderProps = {
 };
 
 function RangeSlider({ min = 0, max = 100, step = 1, onChange, ...props }: RangeSliderProps) {
-    const DEBOUNCE_EVENT_TIMEOUT: number = 300;
-
     // get refs
     const sliderRef = React.useRef<HTMLDivElement>(null);
     const knobStartRef = React.useRef<HTMLSpanElement>(null);
@@ -155,8 +153,6 @@ function RangeSlider({ min = 0, max = 100, step = 1, onChange, ...props }: Range
         let [newStartValue, newEndValue] = value;
         const isKnobStart = $event.target === knobStartRef.current;
         const isKnobEnd = $event.target === knobEndRef.current;
-
-        const STEP_INCREMENT = 10;
 
         switch ($event.key) {
             case 'Home':

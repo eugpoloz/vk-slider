@@ -1,3 +1,6 @@
+export const DEBOUNCE_EVENT_TIMEOUT: number = 300;
+export const STEP_INCREMENT: number = 10;
+
 export const getClientXFromEvent = ($event: React.TouchEvent<HTMLElement> | React.MouseEvent<HTMLElement>) => {
     let $touchEvent = ($event as React.TouchEvent<HTMLElement>);
     let $mouseEvent = ($event as React.MouseEvent<HTMLElement>);
