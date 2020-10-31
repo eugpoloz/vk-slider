@@ -49,9 +49,7 @@ function RangeSlider({ min = 0, max = 100, step = 1, onChange, ...props }: Range
     // set values and percentages
     const [value, setValue] = React.useState(props?.value ? props.value : [min, max]);
 
-    const getPercentFromValue = (value: number) => {
-        return valueToPercent(value, { min, max });
-    }
+    const getPercentFromValue = (value: number) => valueToPercent(value, { min, max });
 
     // handle onChange event on value changes
     React.useEffect(() => {
@@ -154,34 +152,107 @@ function RangeSlider({ min = 0, max = 100, step = 1, onChange, ...props }: Range
     const handleKeyDown: React.KeyboardEventHandler = ($event: React.KeyboardEvent<HTMLSpanElement>) => {
         preventDefaultAndStopPropagation($event);
 
-        // let newValue = value;
+        let [newStartValue, newEndValue] = value;
+        const isKnobStart = $event.target === knobStartRef.current;
+        const isKnobEnd = $event.target === knobEndRef.current;
 
-        // switch ($event.key) {
-        //     case 'Home':
-        //         newValue = min;
-        //         break;
-        //     case 'End':
-        //         newValue = max;
-        //         break;
-        //     case 'PageUp':
-        //     case 'ArrowUp':
-        //     case 'ArrowRight':
-        //         if (value < max) {
-        //             newValue = value + step;
-        //         }
-        //         break;
-        //     case 'PageDown':
-        //     case 'ArrowDown':
-        //     case 'ArrowLeft':
-        //         if (value > min) {
-        //             newValue = value - step;
-        //         }
-        //         break;
-        //     default:
-        //         break;
-        // }
+        const STEP_INCREMENT = 10;
 
-        // setValue(newValue);
+        switch ($event.key) {
+            case 'Home':
+                if (isKnobStart) {
+                    newStartValue = min;
+                }
+
+                if (isKnobEnd) {
+                    newEndValue = max;
+                }
+                break;
+            case 'PageUp':
+                if (isKnobStart) {
+                    let updatedStartValue = value[0] + (step * STEP_INCREMENT);
+
+                    if (updatedStartValue < value[1]) {
+                        newStartValue = updatedStartValue;
+                    } else {
+                        newStartValue = value[1] - step;
+                    }
+                }
+
+                if (isKnobEnd) {
+                    let updatedEndValue = value[1] + (step * STEP_INCREMENT);
+
+                    if (updatedEndValue < max) {
+                        newEndValue = updatedEndValue;
+                    } else {
+                        newEndValue = max;
+                    }
+                }
+                break;
+            case 'ArrowUp':
+            case 'ArrowRight':
+                if (isKnobStart) {
+                    let updatedStartValue = value[0] + step;
+
+                    if (updatedStartValue < value[1]) {
+                        newStartValue = updatedStartValue;
+                    } else {
+                        newStartValue = value[1] - step;
+                    }
+                }
+
+                if (isKnobEnd) {
+                    if (value[1] < max) {
+                        newEndValue = value[1] + step;
+                    }
+                }
+                break;
+            case 'PageDown':
+                if (isKnobEnd) {
+                    const updatedEndValue = value[1] - (step * STEP_INCREMENT);
+
+                    if (updatedEndValue > value[0]) {
+                        newEndValue = updatedEndValue;
+                    } else {
+                        newEndValue = value[0] + step;
+                    }
+                }
+
+                if (isKnobStart) {
+                    const updatedStartValue = value[0] - (step * STEP_INCREMENT);
+
+                    if (updatedStartValue > min) {
+                        newStartValue = updatedStartValue;
+                    } else {
+                        newStartValue = min;
+                    }
+                }
+                break;
+            case 'ArrowDown':
+            case 'ArrowLeft':
+                if (isKnobEnd) {
+                    const updatedEndValue = value[1] - step;
+
+                    if (updatedEndValue > value[0]) {
+                        newEndValue = updatedEndValue;
+                    } else {
+                        newEndValue = value[0] + step;
+                    }
+                }
+
+                if (isKnobStart) {
+                    if (value[0] > min) {
+                        newStartValue = value[0] - step;
+                    }
+                }
+                break;
+            default:
+                break;
+        }
+
+        if ($event.target === knobEndRef.current) { } else if ($event.target === knobStartRef.current) { }
+
+        setValue([newStartValue, newEndValue]);
         // setPercent(valueToPercent(newValue, { min, max }));
     }
 
