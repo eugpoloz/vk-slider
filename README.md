@@ -1,70 +1,98 @@
-# Getting Started with Create React App
+# vk-slider
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Слайдер и range-слайдер на базе слайдера для ВК. Демо [здесь](https://eugpoloz.github.io/vk-slider).
 
-## Available Scripts
+Оба слайдера поддерживают mouse, touch и keyboard-ивенты, а также оформлены в соответствии с релевантной [WAI-ARIA](w3.org/TR/wai-aria-practices/#slider).
 
-In the project directory, you can run:
+## Компоненты
 
-### `yarn start`
+### Slider
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+```
+type SliderProps = {
+    min: number,
+    max: number,
+    step: number,
+    value?: number,
+    defaultValue?: number,
+    onChange?: Function,
+    disabled?: boolean,
+    ariaLabelledBy?: string
+};
+```
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+Пример использования в функциональном компоненте:
 
-### `yarn test`
+```
+let [value, updateValue] = React.useState(5);
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+return (
+    <Slider
+        min={0}
+        max={10}
+        step={1}
+        value={value}
+        onChange={updateValue}
+        ariaLabelledBy="Слайдер"
+    />);
+```
 
-### `yarn build`
+### RangeSlider
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```
+type RangeSliderProps = {
+    min: number,
+    max: number,
+    step: number,
+    value?: number[],
+    onChange?: Function,
+    disabled?: boolean,
+    ariaLabelledBy?: string
+};
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Пример использования в функциональном компоненте:
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```
+let [value, updateValue] = React.useState([2, 5]);
 
-### `yarn eject`
+return (
+    <RangeSlider
+        min={0}
+        max={10}
+        step={1}
+        value={value}
+        onChange={updateValue}
+        ariaLabelledBy="Range-слайдер"
+    />);
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+## Заметки
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Задачи оформить компоненты как отдельный готовый к деплою в NPM пакет не стояло, поэтому я ограничилась приложением-демо. 😸
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+В дизайне не было `:focus` и прочих им подобных состояний. Я не стала сильно с ними возиться, но немного поигралась с тенями, чтобы было видно `:hover` и `:focus`.
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+Что можно было бы улучшить при необходимости из того, чего тут нет:
 
-## Learn More
+- добавить симпатичных spring-анимаций,
+- добавить rtl,
+- добавить поддержку вертикального слайдера.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## Изначальная задача
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+Реализовать компонент Slider. Дизайн [здесь](https://www.figma.com/file/JkJtNthpXtXFzR6gVS17Ll/Test).
 
-### Code Splitting
+Условия:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+- [x] есть возможность указать дискретность шага;
+- [x] есть возможность указать диапазон;
+- [x] поддерживаются touch и mouse события;
+- [x] при ресайзе размера окна компонент продолжает корректно работать;
+- [x] у компонента понятный DX. Мы специально не конкретизируем слово “понятный”. Хочется узнать, как вы понимаете этот термин;
+- [x] использование TS \*
+- [x] реализация RangeSlider \*
 
-### Analyzing the Bundle Size
+Условия со звездочкой приветствуются, но необязательны)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `yarn build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Результат залить на github, живой пример — на github pages.
