@@ -1,31 +1,32 @@
 import React from "react";
-import { getClientXFromEvent, getPercentFromAbsolutePosition, valueToPercent, validateAbsolutePosition, validatePercent, percentToValue } from "../../helpers";
+import { getClientXFromEvent, getPercentFromAbsolutePosition, valueToPercent, validateAbsolutePosition, validatePercent, percentToValue, SliderHelperProps } from "../../helpers";
 import debounce from 'lodash.debounce';
-import "./Slider.css";
+import "./RangeSlider.css";
 
 type SliderDragEvent = React.TouchEvent<HTMLElement> | React.MouseEvent<HTMLElement>;
 
-type SliderProps = {
+type RangeSliderProps = {
     min: number,
     max: number,
     step: number,
-    value?: number,
-    defaultValue?: number,
+    value?: number[],
     onChange?: Function,
     disabled?: boolean,
     ariaLabelledBy?: string
 };
 
-function Slider({ min = 0, max = 100, step = 1, onChange, ...props }: SliderProps) {
-    const DEBOUNCE_EVENT_TIMEOUT = 300;
+function RangeSlider({ min = 0, max = 100, step = 1, onChange, ...props }: RangeSliderProps) {
+    const DEBOUNCE_EVENT_TIMEOUT: number = 300;
+    const KNOB_WIDTH: number = 28;
 
     // get refs
     const sliderRef = React.useRef<HTMLDivElement>(null);
-    const knobRef = React.useRef<HTMLSpanElement>(null);
+    const knobStartRef = React.useRef<HTMLSpanElement>(null);
+    const knobEndRef = React.useRef<HTMLSpanElement>(null);
 
     // measure slider
-    const [sliderWidth, updateSliderWidth] = React.useState(0);
-    const [sliderOffsetX, updateSliderOffsetX] = React.useState(0);
+    const [sliderWidth, updateSliderWidth] = React.useState<number>(0);
+    const [sliderOffsetX, updateSliderOffsetX] = React.useState<number>(0);
 
     const updateSliderDimensions = React.useCallback(() => {
         let sliderDimensions = sliderRef?.current?.getBoundingClientRect();
@@ -48,23 +49,11 @@ function Slider({ min = 0, max = 100, step = 1, onChange, ...props }: SliderProp
     }, [updateSliderDimensions, debounceUpdateSliderDimensions]);
 
     // set values and percentages
-    const determineInitialValue = () => {
-        let initialValue = 0;
+    const [value, setValue] = React.useState(props?.value ? props.value : [min, max]);
 
-        if (props.value) {
-            initialValue = props.value;
-        } else if (props.defaultValue) {
-            initialValue = props.defaultValue;
-        }
-
-        return initialValue;
+    const getPercentFromValue = (value: number) => {
+        return valueToPercent(value, { min, max });
     }
-    const initialValue = determineInitialValue();
-    const initialPercent = valueToPercent(initialValue, { min, max });
-
-    const [value, setValue] = React.useState(initialValue);
-    const [percent, setPercent] = React.useState(initialPercent);
-    const [active, toggleActive] = React.useState(false);
 
     // handle onChange event on value changes
     React.useEffect(() => {
@@ -74,6 +63,15 @@ function Slider({ min = 0, max = 100, step = 1, onChange, ...props }: SliderProp
     }, [value, onChange]);
 
     // get and update slider position
+    const initialTargetRef = React.useRef<HTMLSpanElement | null>(null);
+
+    const getPercentPosition = React.useCallback((clientX: number, helperProps: SliderHelperProps) => {
+        const absoluteX = validateAbsolutePosition(clientX - sliderOffsetX, helperProps);
+        const percentX = getPercentFromAbsolutePosition(absoluteX, sliderWidth);
+
+        return percentX;
+    }, [sliderOffsetX, sliderWidth]);
+
     const updateSliderPosition = React.useCallback(($event: SliderDragEvent) => {
         const clientX = getClientXFromEvent($event);
 
@@ -82,14 +80,19 @@ function Slider({ min = 0, max = 100, step = 1, onChange, ...props }: SliderProp
                 sliderWidth, min, max, step
             };
 
-            const absolutePosition = clientX - sliderOffsetX;
-            const validAbsolutePosition = validateAbsolutePosition(absolutePosition, helperProps);
-            const percentPosition = getPercentFromAbsolutePosition(validAbsolutePosition, sliderWidth);
+            let [newStartValue, newEndValue] = value;
 
-            setPercent(validatePercent(percentPosition));
-            setValue(percentToValue(percentPosition, helperProps));
+            const percentPosition = getPercentPosition(clientX, helperProps);
+
+            if (initialTargetRef.current === knobStartRef.current) {
+                newStartValue = percentToValue(percentPosition, helperProps);
+            } else if (initialTargetRef.current === knobEndRef.current) {
+                newEndValue = percentToValue(percentPosition, helperProps);
+            }
+
+            setValue([newStartValue, newEndValue]);
         }
-    }, [max, min, sliderOffsetX, sliderWidth, step]);
+    }, [max, min, step, sliderWidth, value, sliderOffsetX, getPercentPosition]);
 
     const preventDefaultAndStopPropagation = React.useCallback(($event: any) => {
         if (($event as React.TouchEvent<HTMLElement>).changedTouches?.length > 1) {
@@ -108,8 +111,12 @@ function Slider({ min = 0, max = 100, step = 1, onChange, ...props }: SliderProp
     const handleDragStart = ($event: SliderDragEvent) => {
         preventDefaultAndStopPropagation($event);
 
-        knobRef.current?.focus();
-        toggleActive(true);
+        if ($event.target === knobEndRef.current) {
+            initialTargetRef.current = knobEndRef.current;
+        } else {
+            initialTargetRef.current = knobStartRef.current;
+        }
+
         updateSliderPosition($event);
 
         document.addEventListener('mousemove', handleDragMove, false);
@@ -121,9 +128,9 @@ function Slider({ min = 0, max = 100, step = 1, onChange, ...props }: SliderProp
 
     const handleDragEnd = React.useCallback(($event) => {
         preventDefaultAndStopPropagation($event);
+
         updateSliderPosition($event);
-        toggleActive(false);
-        knobRef.current?.blur();
+        initialTargetRef.current = null;
 
         document.removeEventListener('mousemove', handleDragMove, false);
         document.removeEventListener('touchmove', handleDragMove, false);
@@ -132,40 +139,40 @@ function Slider({ min = 0, max = 100, step = 1, onChange, ...props }: SliderProp
             document.removeEventListener('mouseup', handleDragEnd, false);
             document.removeEventListener('touchend', handleDragEnd, false);
         }, 0)
-    }, [updateSliderPosition, preventDefaultAndStopPropagation, handleDragMove]);
+    }, [preventDefaultAndStopPropagation, handleDragMove, updateSliderPosition]);
 
     const handleKeyDown: React.KeyboardEventHandler = ($event: React.KeyboardEvent<HTMLSpanElement>) => {
         preventDefaultAndStopPropagation($event);
 
-        let newValue = value;
+        // let newValue = value;
 
-        switch ($event.key) {
-            case 'Home':
-                newValue = min;
-                break;
-            case 'End':
-                newValue = max;
-                break;
-            case 'PageUp':
-            case 'ArrowUp':
-            case 'ArrowRight':
-                if (value < max) {
-                    newValue = value + step;
-                }
-                break;
-            case 'PageDown':
-            case 'ArrowDown':
-            case 'ArrowLeft':
-                if (value > min) {
-                    newValue = value - step;
-                }
-                break;
-            default:
-                break;
-        }
+        // switch ($event.key) {
+        //     case 'Home':
+        //         newValue = min;
+        //         break;
+        //     case 'End':
+        //         newValue = max;
+        //         break;
+        //     case 'PageUp':
+        //     case 'ArrowUp':
+        //     case 'ArrowRight':
+        //         if (value < max) {
+        //             newValue = value + step;
+        //         }
+        //         break;
+        //     case 'PageDown':
+        //     case 'ArrowDown':
+        //     case 'ArrowLeft':
+        //         if (value > min) {
+        //             newValue = value - step;
+        //         }
+        //         break;
+        //     default:
+        //         break;
+        // }
 
-        setValue(newValue);
-        setPercent(valueToPercent(newValue, { min, max }));
+        // setValue(newValue);
+        // setPercent(valueToPercent(newValue, { min, max }));
     }
 
     // clean up event listeners on component destroy
@@ -177,7 +184,9 @@ function Slider({ min = 0, max = 100, step = 1, onChange, ...props }: SliderProp
             document.removeEventListener('mouseup', handleDragEnd, false);
             document.removeEventListener('touchend', handleDragEnd, false);
         }
-    }, [handleDragMove, handleDragEnd])
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
     return (
         <div
@@ -185,35 +194,63 @@ function Slider({ min = 0, max = 100, step = 1, onChange, ...props }: SliderProp
             className={(props && props.disabled) ? "slider disabled" : "slider"}
             onMouseDown={!(props && props.disabled) ? handleDragStart : undefined}
             onTouchStart={!(props && props.disabled) ? handleDragStart : undefined}>
-            <span className="slider__rail" />
-            <span
-                className="slider__track"
-                style={{
-                    width: percent + '%'
-                }}
-            />
+            <span className="slider__rail">
+                <span
+                    className="slider__track"
+                    style={{
+                        left: getPercentFromValue(value[0]) + '%',
+                        width: getPercentFromValue(value[1] - value[0]) + '%'
+                    }}
+                />
+            </span>
+
+            {/* END KNOB */}
             <input
                 type="hidden"
                 disabled={props && props.disabled}
-                value={value}
+                value={value[1]}
             />
             <span
-                ref={knobRef}
+                ref={knobEndRef}
                 tabIndex={props && props.disabled ? undefined : 0}
                 role="slider"
                 aria-labelledby={props && props.ariaLabelledBy}
                 aria-orientation="horizontal"
                 aria-valuemax={max}
                 aria-valuemin={min}
-                aria-valuenow={value}
+                aria-valuenow={value[1]}
                 onKeyDown={handleKeyDown}
                 style={{
-                    left: percent + '%'
+                    left: getPercentFromValue(value[1]) + '%'
                 }}
-                className={active ? 'slider__knob active' : 'slider__knob'}
+                className="slider__knob"
             />
+            {/* END KNOB */}
+
+            {/* START KNOB */}
+            <input
+                type="hidden"
+                disabled={props && props.disabled}
+                value={value[0]}
+            />
+            <span
+                ref={knobStartRef}
+                tabIndex={props && props.disabled ? undefined : 0}
+                role="slider"
+                aria-labelledby={props && props.ariaLabelledBy}
+                aria-orientation="horizontal"
+                aria-valuemax={max}
+                aria-valuemin={min}
+                aria-valuenow={value[0]}
+                onKeyDown={handleKeyDown}
+                style={{
+                    left: getPercentFromValue(value[0]) + '%'
+                }}
+                className="slider__knob"
+            />
+            {/* START KNOB */}
         </div>
     );
 }
 
-export default Slider;
+export default RangeSlider;

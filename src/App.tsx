@@ -1,10 +1,12 @@
 import React from "react";
 import Slider from './components/Slider';
+import RangeSlider from './components/RangeSlider';
 import "./App.css";
 
 function App() {
   let [controlledValue, updateControlledValue] = React.useState(20);
   let [uncontrolledValue, updateUncontrolledValue] = React.useState(50);
+  let [rangeValue, updateRangeValue] = React.useState([0, 50]);
 
   let disabledValue: number = 50;
 
@@ -65,6 +67,26 @@ function App() {
           defaultValue={disabledValue}
           disabled
           ariaLabelledBy="Выключенный слайдер"
+        />
+      </section>
+
+      <hr />
+
+      <section className="vk-slider-demo__section">
+        <h2>Range-слайдер</h2>
+
+        <div className="vk-slider-demo__information">
+          <p>0-100, шаг 1</p>
+          <p>Значения: <strong>[{rangeValue[0]}, {rangeValue[1]}]</strong></p>
+        </div>
+
+        <RangeSlider
+          min={0}
+          max={100}
+          step={1}
+          value={rangeValue}
+          onChange={updateRangeValue}
+          ariaLabelledBy="Range-слайдер"
         />
       </section>
     </article>
