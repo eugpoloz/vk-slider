@@ -85,14 +85,26 @@ function RangeSlider({ min = 0, max = 100, step = 1, onChange, ...props }: Range
             const percentPosition = getPercentPosition(clientX, helperProps);
 
             if (initialTargetRef.current === knobStartRef.current) {
-                newStartValue = percentToValue(percentPosition, helperProps);
+                const updatedStartValue = percentToValue(percentPosition, helperProps);
+
+                if (updatedStartValue < value[1]) {
+                    newStartValue = updatedStartValue;
+                } else {
+                    newStartValue = value[1] - step;
+                }
             } else if (initialTargetRef.current === knobEndRef.current) {
-                newEndValue = percentToValue(percentPosition, helperProps);
+                const updatedEndValue = percentToValue(percentPosition, helperProps);
+
+                if (updatedEndValue > value[0]) {
+                    newEndValue = updatedEndValue;
+                } else {
+                    newEndValue = value[0] + step;
+            }
             }
 
             setValue([newStartValue, newEndValue]);
         }
-    }, [max, min, step, sliderWidth, value, sliderOffsetX, getPercentPosition]);
+    }, [max, min, step, sliderWidth, value, getPercentPosition]);
 
     const preventDefaultAndStopPropagation = React.useCallback(($event: any) => {
         if (($event as React.TouchEvent<HTMLElement>).changedTouches?.length > 1) {
