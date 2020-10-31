@@ -40,7 +40,7 @@ export function getPercentFromAbsolutePosition(position: number, sliderWidth: nu
     return position * 100 / sliderWidth;
 }
 
-export function precisionRound(number: number, precision: number) {
+function precisionRound(number: number, precision: number) {
     let factor = Math.pow(10, precision || 1);
     return Math.round(number * factor) / factor;
 }
