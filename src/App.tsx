@@ -4,14 +4,37 @@ import "./styles/app.css";
 import "./styles/slider.css";
 
 function App() {
-  let [controlledValue, updateControlledValue] = React.useState(20);
-  let [uncontrolledValue, updateUncontrolledValue] = React.useState(50);
-  let [rangeValue, updateRangeValue] = React.useState([0, 50]);
+  const simpleDefaultValue = 0.1;
+  const [simpleValue, updateSimpleValue] = React.useState(simpleDefaultValue);
+
+  const [controlledValue, updateControlledValue] = React.useState(20);
+  const [rangeValue, updateRangeValue] = React.useState([0, 50]);
 
   let disabledValue: number = 10;
 
   return (
     <article className="vk-slider-demo">
+      <section className="vk-slider-demo__section">
+        <h2>Простой слайдер (с дефолтным значением)</h2>
+
+        <div className="vk-slider-demo__information">
+          <p>0.0001-1, шаг 0.0001</p>
+          <p>Дефолтное значение: <strong>{simpleDefaultValue}</strong></p>
+          <p>Текущее значение: <strong>{simpleValue}</strong></p>
+        </div>
+
+        <Slider
+          min={0.0001}
+          max={1}
+          step={0.0001}
+          defaultValue={simpleDefaultValue}
+          onChange={updateSimpleValue}
+          ariaLabelledBy="Простой слайдер"
+        />
+      </section>
+
+      <hr />
+
       <section className="vk-slider-demo__section">
         <h2>Контролируемый слайдер</h2>
 
@@ -27,26 +50,6 @@ function App() {
           value={controlledValue}
           onChange={updateControlledValue}
           ariaLabelledBy="Контролируемый слайдер"
-        />
-      </section>
-
-      <hr />
-
-      <section className="vk-slider-demo__section">
-        <h2>Неконтролируемый слайдер</h2>
-
-        <div className="vk-slider-demo__information">
-          <p>0-100, шаг 1</p>
-          <p>Значение: <strong>{uncontrolledValue}</strong></p>
-        </div>
-
-        <Slider
-          min={0}
-          max={100}
-          step={1}
-          defaultValue={uncontrolledValue}
-          onChange={updateUncontrolledValue}
-          ariaLabelledBy="Неконтролируемый слайдер"
         />
       </section>
 

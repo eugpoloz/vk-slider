@@ -7,8 +7,8 @@ test("renders sliders", () => {
   const controlled = screen.getByText(/^Контролируемый слайдер$/i);
   expect(controlled).toBeInTheDocument();
 
-  const uncontrolled = screen.getByText(/^Неконтролируемый слайдер$/i);
-  expect(uncontrolled).toBeInTheDocument();
+  const simple = screen.getByText(/^Простой слайдер$/i);
+  expect(simple).toBeInTheDocument();
 
   const disabled = screen.getByText(/^Выключенный слайдер$/i);
   expect(disabled).toBeInTheDocument();
