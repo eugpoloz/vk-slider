@@ -8,7 +8,7 @@ function App() {
   let [uncontrolledValue, updateUncontrolledValue] = React.useState(50);
   let [rangeValue, updateRangeValue] = React.useState([0, 50]);
 
-  let disabledValue: number = 50;
+  let disabledValue: number = 10;
 
   return (
     <article className="vk-slider-demo">
@@ -63,7 +63,7 @@ function App() {
         <Slider
           min={0}
           max={100}
-          step={1}
+          step={10}
           defaultValue={disabledValue}
           disabled
           ariaLabelledBy="Выключенный слайдер"
