@@ -146,6 +146,7 @@ function Slider({ min = 0, max = 100, step = 1, onChange, ...props }: SliderProp
                 newValue = max;
                 break;
             case 'PageUp':
+                break;
             case 'ArrowUp':
             case 'ArrowRight':
                 if (value < max) {
@@ -153,6 +154,7 @@ function Slider({ min = 0, max = 100, step = 1, onChange, ...props }: SliderProp
                 }
                 break;
             case 'PageDown':
+                break;
             case 'ArrowDown':
             case 'ArrowLeft':
                 if (value > min) {
