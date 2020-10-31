@@ -1,5 +1,5 @@
 import React from "react";
-import { getClientXFromEvent, getPercentFromAbsolutePosition, valueToPercent, validateAbsolutePosition, validatePercent, percentToValue, SliderHelperProps } from "../../helpers";
+import { getClientXFromEvent, getPercentFromAbsolutePosition, valueToPercent, validateAbsolutePosition, percentToValue, SliderHelperProps } from "../../helpers";
 import debounce from 'lodash.debounce';
 import "./RangeSlider.css";
 
@@ -17,7 +17,6 @@ type RangeSliderProps = {
 
 function RangeSlider({ min = 0, max = 100, step = 1, onChange, ...props }: RangeSliderProps) {
     const DEBOUNCE_EVENT_TIMEOUT: number = 300;
-    const KNOB_WIDTH: number = 28;
 
     // get refs
     const sliderRef = React.useRef<HTMLDivElement>(null);
@@ -216,29 +215,6 @@ function RangeSlider({ min = 0, max = 100, step = 1, onChange, ...props }: Range
                 />
             </span>
 
-            {/* END KNOB */}
-            <input
-                type="hidden"
-                disabled={props && props.disabled}
-                value={value[1]}
-            />
-            <span
-                ref={knobEndRef}
-                tabIndex={props && props.disabled ? undefined : 0}
-                role="slider"
-                aria-labelledby={props && props.ariaLabelledBy}
-                aria-orientation="horizontal"
-                aria-valuemax={max}
-                aria-valuemin={min}
-                aria-valuenow={value[1]}
-                onKeyDown={handleKeyDown}
-                style={{
-                    left: getPercentFromValue(value[1]) + '%'
-                }}
-                className="slider__knob"
-            />
-            {/* END KNOB */}
-
             {/* START KNOB */}
             <input
                 type="hidden"
@@ -261,6 +237,29 @@ function RangeSlider({ min = 0, max = 100, step = 1, onChange, ...props }: Range
                 className="slider__knob"
             />
             {/* START KNOB */}
+
+            {/* END KNOB */}
+            <input
+                type="hidden"
+                disabled={props && props.disabled}
+                value={value[1]}
+            />
+            <span
+                ref={knobEndRef}
+                tabIndex={props && props.disabled ? undefined : 0}
+                role="slider"
+                aria-labelledby={props && props.ariaLabelledBy}
+                aria-orientation="horizontal"
+                aria-valuemax={max}
+                aria-valuemin={min}
+                aria-valuenow={value[1]}
+                onKeyDown={handleKeyDown}
+                style={{
+                    left: getPercentFromValue(value[1]) + '%'
+                }}
+                className="slider__knob"
+            />
+            {/* END KNOB */}
         </div>
     );
 }
