@@ -7,14 +7,14 @@ type SliderDragEvent = React.TouchEvent<HTMLElement> | React.MouseEvent<HTMLElem
 type RangeSliderProps = {
     min: number,
     max: number,
-    step: number,
+    step?: number,
     value?: number[],
     onChange?: Function,
     disabled?: boolean,
     ariaLabelledBy?: string
 };
 
-function RangeSlider({ min = 0, max = 100, step = 1, onChange, ...props }: RangeSliderProps) {
+function RangeSlider({ min = 0, max = 100, step = 0.01, onChange, ...props }: RangeSliderProps) {
     // get refs
     const sliderRef = React.useRef<HTMLDivElement>(null);
     const knobStartRef = React.useRef<HTMLSpanElement>(null);

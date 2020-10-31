@@ -7,7 +7,7 @@ type SliderDragEvent = React.TouchEvent<HTMLElement> | React.MouseEvent<HTMLElem
 type SliderProps = {
     min: number,
     max: number,
-    step: number,
+    step?: number,
     value?: number,
     defaultValue?: number,
     onChange?: Function,
@@ -15,7 +15,7 @@ type SliderProps = {
     ariaLabelledBy?: string
 };
 
-function Slider({ min = 0, max = 100, step = 1, onChange, ...props }: SliderProps) {
+function Slider({ min = 0, max = 100, step = 0.01, onChange, ...props }: SliderProps) {
     // get refs
     const sliderRef = React.useRef<HTMLDivElement>(null);
     const knobRef = React.useRef<HTMLSpanElement>(null);

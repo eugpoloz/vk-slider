@@ -20,7 +20,7 @@
 type SliderProps = {
     min: number,
     max: number,
-    step: number,
+    step?: number,
     value?: number,
     defaultValue?: number,
     onChange?: Function,
@@ -38,7 +38,6 @@ return (
     <Slider
         min={0}
         max={10}
-        step={1}
         value={value}
         onChange={updateValue}
         ariaLabelledBy="Слайдер"
@@ -51,7 +50,7 @@ return (
 type RangeSliderProps = {
     min: number,
     max: number,
-    step: number,
+    step?: number,
     value?: number[],
     onChange?: Function,
     disabled?: boolean,
