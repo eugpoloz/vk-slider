@@ -1,7 +1,7 @@
 import React from "react";
-import Slider from './components/Slider';
-import RangeSlider from './components/RangeSlider';
-import "./App.css";
+import { Slider, RangeSlider } from './components';
+import "./styles/app.css";
+import "./styles/slider.css";
 
 function App() {
   let [controlledValue, updateControlledValue] = React.useState(20);

@@ -1,7 +1,6 @@
 import React from "react";
 import { getClientXFromEvent, getPercentFromAbsolutePosition, valueToPercent, validateAbsolutePosition, percentToValue, SliderHelperProps } from "../../helpers";
 import debounce from 'lodash.debounce';
-import "./RangeSlider.css";
 
 type SliderDragEvent = React.TouchEvent<HTMLElement> | React.MouseEvent<HTMLElement>;
 
@@ -98,7 +97,7 @@ function RangeSlider({ min = 0, max = 100, step = 1, onChange, ...props }: Range
                     newEndValue = updatedEndValue;
                 } else {
                     newEndValue = value[0] + step;
-            }
+                }
             }
 
             setValue([newStartValue, newEndValue]);

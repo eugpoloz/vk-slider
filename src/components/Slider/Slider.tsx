@@ -1,7 +1,6 @@
 import React from "react";
 import { getClientXFromEvent, getPercentFromAbsolutePosition, valueToPercent, validateAbsolutePosition, validatePercent, percentToValue } from "../../helpers";
 import debounce from 'lodash.debounce';
-import "./Slider.css";
 
 type SliderDragEvent = React.TouchEvent<HTMLElement> | React.MouseEvent<HTMLElement>;
 
