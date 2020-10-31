@@ -1,8 +1,18 @@
-import { render, screen } from '@testing-library/react';
-import App from './App';
+import { render, screen } from "@testing-library/react";
+import App from "./App";
 
-test('renders learn react link', () => {
+test("renders sliders", () => {
   render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
+
+  const controlled = screen.getByText(/^Контролируемый слайдер$/i);
+  expect(controlled).toBeInTheDocument();
+
+  const uncontrolled = screen.getByText(/^Неконтролируемый слайдер$/i);
+  expect(uncontrolled).toBeInTheDocument();
+
+  const disabled = screen.getByText(/^Выключенный слайдер$/i);
+  expect(disabled).toBeInTheDocument();
+
+  const range = screen.getByText(/^Range-слайдер$/i);
+  expect(range).toBeInTheDocument();
 });
