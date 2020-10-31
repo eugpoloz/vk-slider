@@ -144,6 +144,13 @@ function Slider({ min = 0, max = 100, step = 1, onChange, ...props }: SliderProp
                 newValue = max;
                 break;
             case 'PageUp':
+                let updatedIncrementedValue = value + step * STEP_INCREMENT;
+
+                if (updatedIncrementedValue < max) {
+                    newValue = updatedIncrementedValue;
+                } else {
+                    newValue = max;
+                }
                 break;
             case 'ArrowUp':
             case 'ArrowRight':
@@ -152,6 +159,13 @@ function Slider({ min = 0, max = 100, step = 1, onChange, ...props }: SliderProp
                 }
                 break;
             case 'PageDown':
+                let updatedDecrementedValue = value - step * STEP_INCREMENT;
+
+                if (updatedDecrementedValue > min) {
+                    newValue = updatedDecrementedValue;
+                } else {
+                    newValue = min;
+                }
                 break;
             case 'ArrowDown':
             case 'ArrowLeft':
