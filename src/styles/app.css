@@ -3,20 +3,33 @@
   flex-direction: column;
   align-items: flex-start;
   justify-content: flex-start;
+  width: 100%;
+  max-width: 600px;
   min-height: 100vh;
+  margin: 0 auto;
   padding: 3rem;
-  font-size: 1.5rem;
-  color: #3f8ae0;
+  font-size: 1.4rem;
+  line-height: 1.2;
   background-color: #fff;
 }
 
+.vk-slider-demo__basics,
 .vk-slider-demo__section {
   width: 100%;
-  max-width: 600px;
-  margin: 0 auto;
+}
+
+.vk-slider-demo__basics {
+  margin-bottom: 2.4rem;
+  padding-bottom: 1.6rem;
+  border-bottom: 1px solid #ececec;
+}
+
+.vk-slider-demo__section {
+  margin-bottom: 3.6rem;
+  color: rgb(63, 138, 224);
 }
 
 .vk-slider-demo__information {
   font-size: 1.2rem;
-  color: darkgray;
+  color: #6d6d6d;
 }

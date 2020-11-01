@@ -14,6 +14,12 @@ function App() {
 
   return (
     <article className="vk-slider-demo">
+      <h1>vk-slider</h1>
+
+      <section className="vk-slider-demo__basics">
+        <p>Код: <strong><a href="https://github.com/eugpoloz/vk-slider" rel="noreferrer" title="Репозиторий на github" target="_blank">github</a></strong></p>
+      </section>
+
       <section className="vk-slider-demo__section">
         <h2>Простой слайдер (с дефолтным значением)</h2>
 
@@ -33,8 +39,6 @@ function App() {
         />
       </section>
 
-      <hr />
-
       <section className="vk-slider-demo__section">
         <h2>Контролируемый слайдер</h2>
 
@@ -53,8 +57,6 @@ function App() {
         />
       </section>
 
-      <hr />
-
       <section className="vk-slider-demo__section">
         <h2>Выключенный слайдер</h2>
 
@@ -72,8 +74,6 @@ function App() {
           ariaLabelledBy="Выключенный слайдер"
         />
       </section>
-
-      <hr />
 
       <section className="vk-slider-demo__section">
         <h2>Range-слайдер</h2>
