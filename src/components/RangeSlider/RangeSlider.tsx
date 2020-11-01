@@ -252,7 +252,7 @@ function RangeSlider({ min = 0, max = 100, step = 0.01, onChange, ...props }: Ra
         // setPercent(valueToPercent(newValue, { min, max }));
     }
 
-    // clean up event listeners on component destroy
+    // clean up event listeners on component destroy (= componentWillUnmount)
     React.useEffect(() => {
         return () => {
             document.removeEventListener('mousemove', handleDragMove, false);
@@ -261,7 +261,6 @@ function RangeSlider({ min = 0, max = 100, step = 0.01, onChange, ...props }: Ra
             document.removeEventListener('mouseup', handleDragEnd, false);
             document.removeEventListener('touchend', handleDragEnd, false);
         }
-
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
