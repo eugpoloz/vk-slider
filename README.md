@@ -1,6 +1,6 @@
 # vk-slider
 
-Слайдер и range-слайдер на базе слайдера для ВК. Демо [здесь](https://eugpoloz.github.io/vk-slider).
+Слайдер и range-слайдер на базе слайдера для ВК. Демо [здесь](http://eugpoloz.github.io/vk-slider).
 
 Оба слайдера поддерживают mouse, touch и keyboard-ивенты, а также оформлены в соответствии с релевантной [WAI-ARIA](w3.org/TR/wai-aria-practices/#slider).
 
