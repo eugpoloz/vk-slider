@@ -1,5 +1,5 @@
 import React from "react";
-import { Slider, RangeSlider } from './components';
+import { Slider, RangeSlider } from "./components";
 import "./styles/app.css";
 import "./styles/slider.css";
 
@@ -17,7 +17,19 @@ function App() {
       <h1>vk-slider</h1>
 
       <section className="vk-slider-demo__basics">
-        <p>Код: <strong><a href="https://github.com/eugpoloz/vk-slider" rel="noreferrer" title="Репозиторий на github" target="_blank">github</a></strong></p>
+        <p>
+          Код:{" "}
+          <strong>
+            <a
+              href="https://github.com/eugpoloz/vk-slider"
+              rel="noreferrer"
+              title="Репозиторий на github"
+              target="_blank"
+            >
+              github
+            </a>
+          </strong>
+        </p>
       </section>
 
       <section className="vk-slider-demo__section">
@@ -25,8 +37,12 @@ function App() {
 
         <div className="vk-slider-demo__information">
           <p>0.0001-1, шаг 0.0001</p>
-          <p>Дефолтное значение: <strong>{simpleDefaultValue}</strong></p>
-          <p>Текущее значение: <strong>{simpleValue}</strong></p>
+          <p>
+            Дефолтное значение: <strong>{simpleDefaultValue}</strong>
+          </p>
+          <p>
+            Текущее значение: <strong>{simpleValue}</strong>
+          </p>
         </div>
 
         <Slider
@@ -44,7 +60,9 @@ function App() {
 
         <div className="vk-slider-demo__information">
           <p>5-25, шаг 5</p>
-          <p>Значение: <strong>{controlledValue}</strong></p>
+          <p>
+            Значение: <strong>{controlledValue}</strong>
+          </p>
         </div>
 
         <Slider
@@ -62,7 +80,9 @@ function App() {
 
         <div className="vk-slider-demo__information">
           <p>0-100, шаг 1</p>
-          <p>Значение: <strong>{disabledValue}</strong></p>
+          <p>
+            Значение: <strong>{disabledValue}</strong>
+          </p>
         </div>
 
         <Slider
@@ -80,7 +100,12 @@ function App() {
 
         <div className="vk-slider-demo__information">
           <p>0-100, шаг 1</p>
-          <p>Значения: <strong>[{rangeValue[0]}, {rangeValue[1]}]</strong></p>
+          <p>
+            Значения:{" "}
+            <strong>
+              [{rangeValue[0]}, {rangeValue[1]}]
+            </strong>
+          </p>
         </div>
 
         <RangeSlider

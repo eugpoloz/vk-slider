@@ -1,21 +1,39 @@
 import React from "react";
-import { getClientXFromEvent, getPercentFromAbsolutePosition, valueToPercent, validateAbsolutePosition, validatePercent, percentToValue, clampValue, DEBOUNCE_EVENT_TIMEOUT, STEP_INCREMENT } from "../../helpers";
-import debounce from 'lodash.debounce';
+import {
+    getClientXFromEvent,
+    getPercentFromAbsolutePosition,
+    valueToPercent,
+    validateAbsolutePosition,
+    validatePercent,
+    percentToValue,
+    clampValue,
+    DEBOUNCE_EVENT_TIMEOUT,
+    STEP_INCREMENT,
+} from "../../helpers";
+import debounce from "lodash.debounce";
 
-type SliderDragEvent = React.TouchEvent<HTMLElement> | React.MouseEvent<HTMLElement>;
+type SliderDragEvent =
+    | React.TouchEvent<HTMLElement>
+    | React.MouseEvent<HTMLElement>;
 
 type SliderProps = {
-    min: number,
-    max: number,
-    step?: number,
-    value?: number,
-    defaultValue?: number,
-    onChange?: Function,
-    disabled?: boolean,
-    ariaLabelledBy?: string
+    min: number;
+    max: number;
+    step?: number;
+    value?: number;
+    defaultValue?: number;
+    onChange?: Function;
+    disabled?: boolean;
+    ariaLabelledBy?: string;
 };
 
-function Slider({ min = 0, max = 100, step = 0.01, onChange, ...props }: SliderProps) {
+function Slider({
+    min = 0,
+    max = 100,
+    step = 0.01,
+    onChange,
+    ...props
+}: SliderProps) {
     // get refs
     const sliderRef = React.useRef<HTMLDivElement>(null);
     const knobRef = React.useRef<HTMLSpanElement>(null);
@@ -32,16 +50,19 @@ function Slider({ min = 0, max = 100, step = 0.01, onChange, ...props }: SliderP
             updateSliderOffsetX(sliderDimensions.x);
         }
     }, []);
-    const debounceUpdateSliderDimensions = debounce(updateSliderDimensions, DEBOUNCE_EVENT_TIMEOUT);
+    const debounceUpdateSliderDimensions = debounce(
+        updateSliderDimensions,
+        DEBOUNCE_EVENT_TIMEOUT
+    );
 
     React.useEffect(() => {
         updateSliderDimensions();
 
-        window.addEventListener('resize', debounceUpdateSliderDimensions);
+        window.addEventListener("resize", debounceUpdateSliderDimensions);
 
         return () => {
-            window.removeEventListener('resize', debounceUpdateSliderDimensions);
-        }
+            window.removeEventListener("resize", debounceUpdateSliderDimensions);
+        };
     }, [updateSliderDimensions, debounceUpdateSliderDimensions]);
 
     // set values and percentages
@@ -55,7 +76,7 @@ function Slider({ min = 0, max = 100, step = 0.01, onChange, ...props }: SliderP
         }
 
         return initialValue;
-    }
+    };
     const initialValue = determineInitialValue();
     const initialPercent = valueToPercent(initialValue, { min, max });
 
@@ -71,22 +92,34 @@ function Slider({ min = 0, max = 100, step = 0.01, onChange, ...props }: SliderP
     }, [value, onChange]);
 
     // get and update slider position
-    const updateSliderPosition = React.useCallback(($event: SliderDragEvent) => {
-        const clientX = getClientXFromEvent($event);
+    const updateSliderPosition = React.useCallback(
+        ($event: SliderDragEvent) => {
+            const clientX = getClientXFromEvent($event);
 
-        if (clientX != null) {
-            let helperProps = {
-                sliderWidth, min, max, step
-            };
+            if (clientX != null) {
+                let helperProps = {
+                    sliderWidth,
+                    min,
+                    max,
+                    step,
+                };
 
-            const absolutePosition = clientX - sliderOffsetX;
-            const validAbsolutePosition = validateAbsolutePosition(absolutePosition, helperProps);
-            const percentPosition = getPercentFromAbsolutePosition(validAbsolutePosition, sliderWidth);
+                const absolutePosition = clientX - sliderOffsetX;
+                const validAbsolutePosition = validateAbsolutePosition(
+                    absolutePosition,
+                    helperProps
+                );
+                const percentPosition = getPercentFromAbsolutePosition(
+                    validAbsolutePosition,
+                    sliderWidth
+                );
 
-            setPercent(validatePercent(percentPosition));
-            setValue(percentToValue(percentPosition, helperProps));
-        }
-    }, [max, min, sliderOffsetX, sliderWidth, step]);
+                setPercent(validatePercent(percentPosition));
+                setValue(percentToValue(percentPosition, helperProps));
+            }
+        },
+        [max, min, sliderOffsetX, sliderWidth, step]
+    );
 
     const preventDefaultAndStopPropagation = React.useCallback(($event: any) => {
         if (($event as React.TouchEvent<HTMLElement>).changedTouches?.length > 1) {
@@ -97,10 +130,13 @@ function Slider({ min = 0, max = 100, step = 0.01, onChange, ...props }: SliderP
     }, []);
 
     // handle events
-    const handleDragMove = React.useCallback(($event) => {
-        preventDefaultAndStopPropagation($event);
-        updateSliderPosition($event);
-    }, [updateSliderPosition, preventDefaultAndStopPropagation]);
+    const handleDragMove = React.useCallback(
+        ($event) => {
+            preventDefaultAndStopPropagation($event);
+            updateSliderPosition($event);
+        },
+        [updateSliderPosition, preventDefaultAndStopPropagation]
+    );
 
     const handleDragStart = ($event: SliderDragEvent) => {
         preventDefaultAndStopPropagation($event);
@@ -109,41 +145,46 @@ function Slider({ min = 0, max = 100, step = 0.01, onChange, ...props }: SliderP
         toggleActive(true);
         updateSliderPosition($event);
 
-        document.addEventListener('mousemove', handleDragMove, false);
-        document.addEventListener('touchmove', handleDragMove, false);
+        document.addEventListener("mousemove", handleDragMove, false);
+        document.addEventListener("touchmove", handleDragMove, false);
 
-        document.addEventListener('mouseup', handleDragEnd, false);
-        document.addEventListener('touchend', handleDragEnd, false);
-    }
+        document.addEventListener("mouseup", handleDragEnd, false);
+        document.addEventListener("touchend", handleDragEnd, false);
+    };
 
-    const handleDragEnd = React.useCallback(($event) => {
-        preventDefaultAndStopPropagation($event);
-        updateSliderPosition($event);
-        toggleActive(false);
-        knobRef.current?.blur();
+    const handleDragEnd = React.useCallback(
+        ($event) => {
+            preventDefaultAndStopPropagation($event);
+            updateSliderPosition($event);
+            toggleActive(false);
+            knobRef.current?.blur();
 
-        document.removeEventListener('mousemove', handleDragMove, false);
-        document.removeEventListener('touchmove', handleDragMove, false);
+            document.removeEventListener("mousemove", handleDragMove, false);
+            document.removeEventListener("touchmove", handleDragMove, false);
 
-        setTimeout(() => {
-            document.removeEventListener('mouseup', handleDragEnd, false);
-            document.removeEventListener('touchend', handleDragEnd, false);
-        }, 0)
-    }, [updateSliderPosition, preventDefaultAndStopPropagation, handleDragMove]);
+            setTimeout(() => {
+                document.removeEventListener("mouseup", handleDragEnd, false);
+                document.removeEventListener("touchend", handleDragEnd, false);
+            }, 0);
+        },
+        [updateSliderPosition, preventDefaultAndStopPropagation, handleDragMove]
+    );
 
-    const handleKeyDown: React.KeyboardEventHandler = ($event: React.KeyboardEvent<HTMLSpanElement>) => {
+    const handleKeyDown: React.KeyboardEventHandler = (
+        $event: React.KeyboardEvent<HTMLSpanElement>
+    ) => {
         preventDefaultAndStopPropagation($event);
 
         let newValue = value;
 
         switch ($event.key) {
-            case 'Home':
+            case "Home":
                 newValue = min;
                 break;
-            case 'End':
+            case "End":
                 newValue = max;
                 break;
-            case 'PageUp':
+            case "PageUp":
                 let updatedIncrementedValue = value + step * STEP_INCREMENT;
 
                 if (updatedIncrementedValue < max) {
@@ -152,13 +193,13 @@ function Slider({ min = 0, max = 100, step = 0.01, onChange, ...props }: SliderP
                     newValue = max;
                 }
                 break;
-            case 'ArrowUp':
-            case 'ArrowRight':
+            case "ArrowUp":
+            case "ArrowRight":
                 if (value < max) {
                     newValue = value + step;
                 }
                 break;
-            case 'PageDown':
+            case "PageDown":
                 let updatedDecrementedValue = value - step * STEP_INCREMENT;
 
                 if (updatedDecrementedValue > min) {
@@ -167,8 +208,8 @@ function Slider({ min = 0, max = 100, step = 0.01, onChange, ...props }: SliderP
                     newValue = min;
                 }
                 break;
-            case 'ArrowDown':
-            case 'ArrowLeft':
+            case "ArrowDown":
+            case "ArrowLeft":
                 if (value > min) {
                     newValue = value - step;
                 }
@@ -179,38 +220,35 @@ function Slider({ min = 0, max = 100, step = 0.01, onChange, ...props }: SliderP
 
         setValue(clampValue(newValue, step));
         setPercent(valueToPercent(newValue, { min, max }));
-    }
+    };
 
     // clean up event listeners on component destroy (= componentWillUnmount)
     React.useEffect(() => {
         return () => {
-            document.removeEventListener('mousemove', handleDragMove, false);
-            document.removeEventListener('touchmove', handleDragMove, false);
+            document.removeEventListener("mousemove", handleDragMove, false);
+            document.removeEventListener("touchmove", handleDragMove, false);
 
-            document.removeEventListener('mouseup', handleDragEnd, false);
-            document.removeEventListener('touchend', handleDragEnd, false);
-        }
+            document.removeEventListener("mouseup", handleDragEnd, false);
+            document.removeEventListener("touchend", handleDragEnd, false);
+        };
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
+    }, []);
 
     return (
         <div
             ref={sliderRef}
-            className={(props && props.disabled) ? "slider disabled" : "slider"}
+            className={props && props.disabled ? "slider disabled" : "slider"}
             onMouseDown={!(props && props.disabled) ? handleDragStart : undefined}
-            onTouchStart={!(props && props.disabled) ? handleDragStart : undefined}>
+            onTouchStart={!(props && props.disabled) ? handleDragStart : undefined}
+        >
             <span className="slider__rail" />
             <span
                 className="slider__track"
                 style={{
-                    width: percent + '%'
+                    width: percent + "%",
                 }}
             />
-            <input
-                type="hidden"
-                disabled={props && props.disabled}
-                value={value}
-            />
+            <input type="hidden" disabled={props && props.disabled} value={value} />
             <span
                 ref={knobRef}
                 tabIndex={props && props.disabled ? undefined : 0}
@@ -222,9 +260,9 @@ function Slider({ min = 0, max = 100, step = 0.01, onChange, ...props }: SliderP
                 aria-valuenow={value}
                 onKeyDown={handleKeyDown}
                 style={{
-                    left: percent + '%'
+                    left: percent + "%",
                 }}
-                className={active ? 'slider__knob active' : 'slider__knob'}
+                className={active ? "slider__knob active" : "slider__knob"}
             />
         </div>
     );
