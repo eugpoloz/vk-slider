@@ -48,15 +48,20 @@ function precisionRound(number: number, precision: number) {
     return Math.round(number * factor) / factor;
 }
 
-export function percentToValue(percent: number, { sliderWidth, min, max, step }: SliderHelperProps) {
-    const res = percent * (max - min) / 100 + min;
-
+export function clampValue(value: number, step: number) {
     if (step > 0) {
         const stepFloatPart = `${step}`.split('.')[1] || '';
-        return precisionRound(res, stepFloatPart.length);
+        return precisionRound(value, stepFloatPart.length);
     }
 
-    return res;
+    return value;
+}
+
+type PercentToValueProps = { min: number, max: number, step: number };
+export function percentToValue(percent: number, { min, max, step }: PercentToValueProps) {
+    const value = percent * (max - min) / 100 + min;
+
+    return clampValue(value, step);
 }
 
 type ValueToPercentProps = { min: number, max: number };
