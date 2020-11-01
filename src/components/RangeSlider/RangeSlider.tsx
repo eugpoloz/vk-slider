@@ -1,5 +1,5 @@
 import React from "react";
-import { getClientXFromEvent, getPercentFromAbsolutePosition, valueToPercent, validateAbsolutePosition, percentToValue, SliderHelperProps, DEBOUNCE_EVENT_TIMEOUT, STEP_INCREMENT } from "../../helpers";
+import { getClientXFromEvent, getPercentFromAbsolutePosition, valueToPercent, validateAbsolutePosition, percentToValue, clampValue, SliderHelperProps, DEBOUNCE_EVENT_TIMEOUT, STEP_INCREMENT } from "../../helpers";
 import debounce from 'lodash.debounce';
 
 type SliderDragEvent = React.TouchEvent<HTMLElement> | React.MouseEvent<HTMLElement>;
@@ -46,7 +46,6 @@ function RangeSlider({ min = 0, max = 100, step = 0.01, onChange, ...props }: Ra
 
     // set values and percentages
     const [value, setValue] = React.useState(props?.value ? props.value : [min, max]);
-
     const getPercentFromValue = (value: number) => valueToPercent(value, { min, max });
 
     // handle onChange event on value changes
@@ -96,7 +95,7 @@ function RangeSlider({ min = 0, max = 100, step = 0.01, onChange, ...props }: Ra
                 }
             }
 
-            setValue([newStartValue, newEndValue]);
+            setValue([clampValue(newStartValue, step), clampValue(newEndValue, step)]);
         }
     }, [max, min, step, sliderWidth, value, getPercentPosition]);
 
@@ -155,8 +154,8 @@ function RangeSlider({ min = 0, max = 100, step = 0.01, onChange, ...props }: Ra
         if ($event.target === knobStartRef.current) {
             let updatedStartValue;
 
-        switch ($event.key) {
-            case 'Home':
+            switch ($event.key) {
+                case 'Home':
                     newStartValue = min;
                     break;
                 case 'PageUp':
@@ -166,8 +165,8 @@ function RangeSlider({ min = 0, max = 100, step = 0.01, onChange, ...props }: Ra
                         newStartValue = updatedStartValue;
                     } else {
                         newStartValue = value[1] - step;
-                }
-                break;
+                    }
+                    break;
                 case 'ArrowUp':
                 case 'ArrowRight':
                     updatedStartValue = value[0] + step;
@@ -185,7 +184,7 @@ function RangeSlider({ min = 0, max = 100, step = 0.01, onChange, ...props }: Ra
                         newStartValue = updatedStartValue;
                     } else {
                         newStartValue = min;
-                }
+                    }
                     break;
                 case 'ArrowDown':
                 case 'ArrowLeft':
@@ -213,14 +212,14 @@ function RangeSlider({ min = 0, max = 100, step = 0.01, onChange, ...props }: Ra
                     } else {
                         newEndValue = max;
                     }
-                break;
-            case 'ArrowUp':
-            case 'ArrowRight':
+                    break;
+                case 'ArrowUp':
+                case 'ArrowRight':
                     if (value[1] < max) {
                         newEndValue = value[1] + step;
                     }
-                break;
-            case 'PageDown':
+                    break;
+                case 'PageDown':
                     updatedEndValue = value[1] - (step * STEP_INCREMENT);
 
                     if (updatedEndValue > value[0]) {
@@ -228,9 +227,9 @@ function RangeSlider({ min = 0, max = 100, step = 0.01, onChange, ...props }: Ra
                     } else {
                         newEndValue = value[0] + step;
                     }
-                break;
-            case 'ArrowDown':
-            case 'ArrowLeft':
+                    break;
+                case 'ArrowDown':
+                case 'ArrowLeft':
                     updatedEndValue = value[1] - step;
 
                     if (updatedEndValue > value[0]) {
@@ -238,13 +237,13 @@ function RangeSlider({ min = 0, max = 100, step = 0.01, onChange, ...props }: Ra
                     } else {
                         newEndValue = value[0] + step;
                     }
-                break;
-            default:
-                break;
-        }
+                    break;
+                default:
+                    break;
+            }
         }
 
-        setValue([newStartValue, newEndValue]);
+        setValue([clampValue(newStartValue, step), clampValue(newEndValue, step)]);
     }
 
     // clean up event listeners on component destroy (= componentWillUnmount)

@@ -1,5 +1,5 @@
 import React from "react";
-import { getClientXFromEvent, getPercentFromAbsolutePosition, valueToPercent, validateAbsolutePosition, validatePercent, percentToValue, DEBOUNCE_EVENT_TIMEOUT, STEP_INCREMENT } from "../../helpers";
+import { getClientXFromEvent, getPercentFromAbsolutePosition, valueToPercent, validateAbsolutePosition, validatePercent, percentToValue, clampValue, DEBOUNCE_EVENT_TIMEOUT, STEP_INCREMENT } from "../../helpers";
 import debounce from 'lodash.debounce';
 
 type SliderDragEvent = React.TouchEvent<HTMLElement> | React.MouseEvent<HTMLElement>;
@@ -177,7 +177,7 @@ function Slider({ min = 0, max = 100, step = 0.01, onChange, ...props }: SliderP
                 break;
         }
 
-        setValue(newValue);
+        setValue(clampValue(newValue, step));
         setPercent(valueToPercent(newValue, { min, max }));
     }
 
