@@ -151,105 +151,100 @@ function RangeSlider({ min = 0, max = 100, step = 0.01, onChange, ...props }: Ra
         preventDefaultAndStopPropagation($event);
 
         let [newStartValue, newEndValue] = value;
-        const isKnobStart = $event.target === knobStartRef.current;
-        const isKnobEnd = $event.target === knobEndRef.current;
+
+        if ($event.target === knobStartRef.current) {
+            let updatedStartValue;
 
         switch ($event.key) {
             case 'Home':
-                if (isKnobStart) {
                     newStartValue = min;
-                }
+                    break;
+                case 'PageUp':
+                    updatedStartValue = value[0] + (step * STEP_INCREMENT);
 
-                if (isKnobEnd) {
-                    newEndValue = max;
+                    if (updatedStartValue < value[1]) {
+                        newStartValue = updatedStartValue;
+                    } else {
+                        newStartValue = value[1] - step;
                 }
                 break;
-            case 'PageUp':
-                if (isKnobStart) {
-                    let updatedStartValue = value[0] + (step * STEP_INCREMENT);
+                case 'ArrowUp':
+                case 'ArrowRight':
+                    updatedStartValue = value[0] + step;
 
                     if (updatedStartValue < value[1]) {
                         newStartValue = updatedStartValue;
                     } else {
                         newStartValue = value[1] - step;
                     }
-                }
+                    break;
+                case 'PageDown':
+                    updatedStartValue = value[0] - (step * STEP_INCREMENT);
 
-                if (isKnobEnd) {
-                    let updatedEndValue = value[1] + (step * STEP_INCREMENT);
+                    if (updatedStartValue > min) {
+                        newStartValue = updatedStartValue;
+                    } else {
+                        newStartValue = min;
+                }
+                    break;
+                case 'ArrowDown':
+                case 'ArrowLeft':
+                    if (value[0] > min) {
+                        newStartValue = value[0] - step;
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        if ($event.target === knobEndRef.current) {
+            let updatedEndValue;
+
+            switch ($event.key) {
+                case 'Home':
+                    newEndValue = max;
+                    break;
+                case 'PageUp':
+                    updatedEndValue = value[1] + (step * STEP_INCREMENT);
 
                     if (updatedEndValue < max) {
                         newEndValue = updatedEndValue;
                     } else {
                         newEndValue = max;
                     }
-                }
                 break;
             case 'ArrowUp':
             case 'ArrowRight':
-                if (isKnobStart) {
-                    let updatedStartValue = value[0] + step;
-
-                    if (updatedStartValue < value[1]) {
-                        newStartValue = updatedStartValue;
-                    } else {
-                        newStartValue = value[1] - step;
-                    }
-                }
-
-                if (isKnobEnd) {
                     if (value[1] < max) {
                         newEndValue = value[1] + step;
                     }
-                }
                 break;
             case 'PageDown':
-                if (isKnobEnd) {
-                    const updatedEndValue = value[1] - (step * STEP_INCREMENT);
+                    updatedEndValue = value[1] - (step * STEP_INCREMENT);
 
                     if (updatedEndValue > value[0]) {
                         newEndValue = updatedEndValue;
                     } else {
                         newEndValue = value[0] + step;
                     }
-                }
-
-                if (isKnobStart) {
-                    const updatedStartValue = value[0] - (step * STEP_INCREMENT);
-
-                    if (updatedStartValue > min) {
-                        newStartValue = updatedStartValue;
-                    } else {
-                        newStartValue = min;
-                    }
-                }
                 break;
             case 'ArrowDown':
             case 'ArrowLeft':
-                if (isKnobEnd) {
-                    const updatedEndValue = value[1] - step;
+                    updatedEndValue = value[1] - step;
 
                     if (updatedEndValue > value[0]) {
                         newEndValue = updatedEndValue;
                     } else {
                         newEndValue = value[0] + step;
                     }
-                }
-
-                if (isKnobStart) {
-                    if (value[0] > min) {
-                        newStartValue = value[0] - step;
-                    }
-                }
                 break;
             default:
                 break;
         }
-
-        if ($event.target === knobEndRef.current) { } else if ($event.target === knobStartRef.current) { }
+        }
 
         setValue([newStartValue, newEndValue]);
-        // setPercent(valueToPercent(newValue, { min, max }));
     }
 
     // clean up event listeners on component destroy (= componentWillUnmount)
