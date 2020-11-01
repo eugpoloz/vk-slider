@@ -14,6 +14,10 @@ body {
   line-height: 1;
 }
 
+.no-user-select {
+  user-select: none;
+}
+
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;

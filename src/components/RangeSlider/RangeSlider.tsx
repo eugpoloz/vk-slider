@@ -180,6 +180,8 @@ function RangeSlider({
         ($event) => {
             preventDefaultAndStopPropagation($event);
 
+            document.body?.classList.add('no-user-select');
+
             updateSliderPosition($event);
             initialTargetRef.current = null;
 
@@ -198,6 +200,8 @@ function RangeSlider({
         $event: React.KeyboardEvent<HTMLSpanElement>
     ) => {
         preventDefaultAndStopPropagation($event);
+
+        document.body?.classList.remove('no-user-select');
 
         let [newStartValue, newEndValue] = value;
 

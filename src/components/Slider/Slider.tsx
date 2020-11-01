@@ -141,6 +141,8 @@ function Slider({
     const handleDragStart = ($event: SliderDragEvent) => {
         preventDefaultAndStopPropagation($event);
 
+        document.body?.classList.add('no-user-select');
+
         knobRef.current?.focus();
         toggleActive(true);
         updateSliderPosition($event);
@@ -155,6 +157,9 @@ function Slider({
     const handleDragEnd = React.useCallback(
         ($event) => {
             preventDefaultAndStopPropagation($event);
+
+            document.body?.classList.remove('no-user-select');
+
             updateSliderPosition($event);
             toggleActive(false);
             knobRef.current?.blur();
